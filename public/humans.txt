@@ -1,0 +1,10 @@
+/* TEAM */
+Developer: Marek_Dudkovic
+Designer: Marek_Dudkovic
+Band: Suniket
+From: Týnec nad Sázavou, Czech Republic
+Site: https://suniket.cz
+
+/* THANKS */
+Built with React + Vite + Tailwind CSS
+Generated on: 2025-10-18

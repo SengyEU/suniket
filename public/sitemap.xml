@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset 
+  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" 
+  xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+  <url>
+    <loc>https://suniket.cz/</loc>
+    <lastmod>2025-10-18</lastmod>
+    <priority>1.0</priority>
+  </url>
+
+  <url>
+    <loc>https://suniket.cz/o-nas</loc>
+    <lastmod>2025-10-18</lastmod>
+    <priority>0.9</priority>
+  </url>
+
+  <url>
+    <loc>https://suniket.cz/diskografie</loc>
+    <lastmod>2025-10-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://suniket.cz/foto</loc>
+    <lastmod>2025-10-18</lastmod>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://suniket.cz/video</loc>
+    <lastmod>2025-10-18</lastmod>
+    <priority>0.7</priority>
+  </url>
+
+  <url>
+    <loc>https://suniket.cz/merch</loc>
+    <lastmod>2025-10-18</lastmod>
+    <priority>0.6</priority>
+  </url>
+
+  <url>
+    <loc>https://suniket.cz/tour</loc>
+    <lastmod>2025-10-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://suniket.cz/novinky</loc>
+    <lastmod>2025-10-18</lastmod>
+    <priority>0.8</priority>
+  </url>
+
+  <url>
+    <loc>https://suniket.cz/kontakt</loc>
+    <lastmod>2025-10-18</lastmod>
+    <priority>0.6</priority>
+  </url>
+
+</urlset>

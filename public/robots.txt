@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin/
+Disallow: /temp/
+Disallow: /private/
+
+Sitemap: https://suniket.cz/sitemap.xml

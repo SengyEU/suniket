@@ -1,0 +1,27 @@
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@700&display=swap");
+@import "tailwindcss";
+
+@layer base {
+    * {
+        padding: 0;
+        margin: 0;
+        font-family: "Space Grotesk", sans-serif;
+    }
+
+    @keyframes pulseScale {
+        from {
+            transform: scale(1);
+        }
+        to {
+            transform: scale(1.05);
+        }
+    }
+}
+
+@theme {
+    --color-red-sun: #fc0102;
+    --color-red-dark-sun: #7e0101;
+    --color-white-sun: #fcfbf3;
+    --color-black-sun: #000;
+    --breakpoint-2xl: 1470px;
+}

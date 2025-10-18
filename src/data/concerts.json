@@ -1,0 +1,16 @@
+{
+    "upcoming": [
+        {
+            "date": "So, xx. xx. 2026",
+            "event": "Charitativní akce Chářovice",
+            "link": "https://facebook.com",
+            "place": "Chářovice",
+            "time": "xx:xx",
+            "entry": true,
+            "entryHasLink": false,
+            "entryPrice": "xx Kč",
+            "entryLink": "https://vstupenky.cz"
+        }
+    ],
+    "past": []
+}

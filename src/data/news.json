@@ -1,0 +1,13 @@
+{
+    "articles": [
+        {
+            "id": "1",
+            "date": "xx. xx. 2025",
+            "title": "Zvěřejnění prvních písní",
+            "description": "Na náš Bandzone profil jsme nahráli demoverze našich prvních písní!",
+            "image": "/img/news/recording.webp",
+            "link": "https://bandzone.cz/suniket",
+            "linkText": "Poslechnout na Bandzone"
+        }
+    ]
+}

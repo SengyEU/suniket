@@ -1,0 +1,34 @@
+[
+    {
+        "src": "/img/about/2023.webp",
+        "alt": "Zkušebna - 2023"
+    },
+    {
+        "src": "/img/about/2024.webp",
+        "alt": "Zkušebna - 2024"
+    },
+    {
+        "src": "/img/about/2025.webp",
+        "alt": "Zkušebna - 2025"
+    },
+    {
+        "src": "/img/band/singer.webp",
+        "alt": "Zpěv - Victor Hrazdil"
+    },
+    {
+        "src": "/img/band/guitar1.webp",
+        "alt": "Kytara - Lukáš Janata"
+    },
+    {
+        "src": "/img/band/guitar2.webp",
+        "alt": "Kytara - Marek Dudkovič"
+    },
+    {
+        "src": "/img/band/bass.webp",
+        "alt": "Baskytara - Dominik Hrazdil"
+    },
+    {
+        "src": "/img/band/drums.webp",
+        "alt": "Bicí - Kryštof Doležel"
+    }
+]
