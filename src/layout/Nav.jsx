@@ -96,7 +96,7 @@ export default function Nav() {
                     ))}
 
                     {/* Kapela dropdown */}
-                    <div className="relative inline-block group">
+                    <div className="relative inline-block group hover:cursor-pointer">
                         <a
                             className={`text-xl no-underline transition-colors duration-300 cursor-pointer ${
                                 isBandActive ? "text-red-sun" : "text-white-sun hover:text-red-sun"
@@ -127,7 +127,7 @@ export default function Nav() {
                     ))}
 
                     {/* Galerie dropdown hned za Merchem */}
-                    <div className="relative inline-block group">
+                    <div className="relative inline-block group hover:cursor-pointer">
                         <a
                             className={`text-xl no-underline transition-colors duration-300 cursor-pointer ${
                                 isGalleryActive ? "text-red-sun" : "text-white-sun hover:text-red-sun"
@@ -180,7 +180,7 @@ export default function Nav() {
                     ))}
 
                     {/* Kapela dropdown */}
-                    <div className="relative inline-block 2xl:hidden">
+                    <div className="relative inline-block 2xl:hidden hover:cursor-pointer">
                         <button
                             onClick={() => {
                                 setGalleryOpen(false);
@@ -219,7 +219,7 @@ export default function Nav() {
                     ))}
 
                     {/* Galerie dropdown hned za Merchem */}
-                    <div className="relative inline-block 2xl:hidden">
+                    <div className="relative inline-block 2xl:hidden hover:cursor-pointer">
                         <button
                             onClick={() => {
                                 setBandOpen(false);
