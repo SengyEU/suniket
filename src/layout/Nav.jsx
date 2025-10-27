@@ -180,14 +180,14 @@ export default function Nav() {
                     ))}
 
                     {/* Kapela dropdown */}
-                    <div className="relative inline-block 2xl:hidden hover:cursor-pointer">
+                    <div className="relative inline-block 2xl:hidden">
                         <button
                             onClick={() => {
                                 setGalleryOpen(false);
                                 setBandOpen(!bandOpen);
                             }}
                             className={`w-full text-xl transition-colors duration-300 ${
-                                isBandActive ? "text-red-sun" : "text-white-sun hover:text-red-sun"
+                                isBandActive ? "text-red-sun" : "text-white-sun hover:text-red-sun hover:cursor-pointer"
                             }`}
                         >
                             Kapela <FontAwesomeIcon icon={faUsers} />
@@ -219,14 +219,14 @@ export default function Nav() {
                     ))}
 
                     {/* Galerie dropdown hned za Merchem */}
-                    <div className="relative inline-block 2xl:hidden hover:cursor-pointer">
+                    <div className="relative inline-block 2xl:hidden">
                         <button
                             onClick={() => {
                                 setBandOpen(false);
                                 setGalleryOpen(!galleryOpen);
                             }}
                             className={`w-full text-xl text-lefttransition-colors duration-300 ${
-                                isGalleryActive ? "text-red-sun" : "text-white-sun hover:text-red-sun"
+                                isGalleryActive ? "text-red-sun" : "text-white-sun hover:text-red-sun hover:cursor-pointer"
                             }`}
                         >
                             Galerie <FontAwesomeIcon icon={faImage} />
