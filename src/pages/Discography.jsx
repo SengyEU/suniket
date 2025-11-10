@@ -87,11 +87,6 @@ export default function Discography() {
                                                 }`}
                                             >
                                                 <div className="overflow-hidden px-4 pb-4 text-sm sm:text-base leading-relaxed text-white/90 whitespace-pre-wrap">
-                                                    Hudba: {song.musicAuthor}
-                                                    <br />
-                                                    Text: {song.lyricsAuthor}
-                                                    <br />
-                                                    <br />
                                                     {Array.isArray(song.lyrics) ? song.lyrics.join("\n") : song.lyrics}
                                                 </div>
                                             </div>

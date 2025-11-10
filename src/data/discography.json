@@ -7,8 +7,6 @@
             "songs": [
                 {
                     "title": "Trestanec",
-                    "musicAuthor": "Marek Dudkovič",
-                    "lyricsAuthor": "Marek Dudkovič",
                     "lyrics": [
                         "Vítej v lochu není cesty zpět",
                         "hochu už začni přemýšlet",
@@ -58,8 +56,6 @@
                 },
                 {
                     "title": "U zdi stát",
-                    "musicAuthor": "Lukáš Janata",
-                    "lyricsAuthor": "Dominik Hrazdil, Marek Dudkovič, Victor Hrazdil",
                     "lyrics": [
                         "Nekonečný pot a slzy to je osud náš",
                         "skrývat se musíš proč se tolik ptáš",
@@ -99,8 +95,6 @@
                 },
                 {
                     "title": "Zas se mění čas",
-                    "musicAuthor": "Marek Dudkovič",
-                    "lyricsAuthor": "Marek Dudkovič",
                     "lyrics": [
                         "Fátum změny chystá",
                         "v předpověď nedoufám",
@@ -141,44 +135,6 @@
                         "vždycky jsem se ptal",
                         "",
                         "Ref.: Padající kameny..."
-                    ]
-                },
-                {
-                    "title": "Mobydick",
-                    "musicAuthor": "Lukáš Janata, Dominik Hrazdil",
-                    "lyricsAuthor": "Marek Dudkovič",
-                    "lyrics": [
-                        "Mořem pluje vobluda",
-                        "co nespatřil ji svět",
-                        "výprava odhodlaná",
-                        "přiveze jí zpět",
-                        "",
-                        "Ref.: Mobydick mobydick nebojácný",
-                        "          mobydick posedlost tě provází",
-                        "          mobydick mobydick nebojácný",
-                        "          mobydick naděje se vytrácí",
-                        "",
-                        "Ahab svoji krutou pomstu",
-                        "řádně odvede",
-                        "v hlavě má jen jeden cíl",
-                        "za kterým dojede",
-                        "",
-                        "Ref.: Mobydick mobydick nebojácný...",
-                        "",
-                        "Čeká mě velký pád",
-                        "výhra pro tentokrát",
-                        "souboj poslední",
-                        "",
-                        "Víckrát už tu nebudu mobydicka hnát",
-                        "bylo to mý jediný poslání",
-                        "pod hladinou moře budu ležet napořád",
-                        "nikdo tělo mý nezachrání",
-                        "",
-                        "S velrybou bojovat",
-                        "přestávám milovat",
-                        "výdech poslední",
-                        "",
-                        "Ref.: Mobydick mobydick nebojácný..."
                     ]
                 }
             ]
