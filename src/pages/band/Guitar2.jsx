@@ -14,7 +14,7 @@ export default function Guitar2() {
             },
             {
                 name: "Zesilovač Fender Champion 100 Snow White",
-                link: "https://kytary.cz/fender-champion-100-snow-white/HN160480/",
+                link: "https://www.gear4music.cz/cs/Kytara-baskytara/1EXI",
             },
         ],
     };

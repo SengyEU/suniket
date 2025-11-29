@@ -10,10 +10,11 @@ export default function Guitar1() {
         gear: [
             {
                 name: "Kytara Harley Benton SC-CUSTOM II Silverburst",
+                link: "https://reverb.com/en-cz/item/44640839",
             },
             {
                 name: "Zesilovač Hughes & Kettner TubeMeister 36",
-                link: "https://kytary.cz/hughes-kettner-tubemeister-36-head/HN145420/",
+                link: "https://www.muziker.cz/hughes-kettner-tubemeister-36-head",
             },
             {
                 name: "Reprobox Harley Benton G212 Vertical Celestion V30",
