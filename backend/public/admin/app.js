@@ -25,6 +25,27 @@ async function uploadFile(file) {
   } catch { return null; }
 }
 
+let sortDirs = {};
+
+async function initSortDirs() {
+  const dirs = await api("/sort-dir") || {};
+  sortDirs = dirs;
+}
+
+function sortToggle(section) {
+  const cur = sortDirs[section] || "asc";
+  const next = cur === "asc" ? "desc" : "asc";
+  return `<button class="btn btn-sm btn-edit" onclick="toggleSort('${section}')" title="Změnit řazení">${cur === "asc" ? "↑" : "↓"}</button>`;
+}
+
+async function toggleSort(section) {
+  const cur = sortDirs[section] || "asc";
+  const next = cur === "asc" ? "desc" : "asc";
+  await api("/sort-dir", { method: "POST", body: JSON.stringify({ section, dir: next }) });
+  sortDirs[section] = next;
+  route();
+}
+
 function toast(msg, type = "success") {
   const el = document.getElementById("toast");
   el.textContent = msg;
@@ -42,9 +63,10 @@ function modal(html) {
 function closeModal() { document.getElementById("modal").classList.remove("open"); }
 
 /* ─── Router ─── */
-function route() {
+async function route() {
   const hash = location.hash || "#/dashboard";
   if (!token && hash !== "#/login") { location.hash = "#/login"; return; }
+  if (hash !== "#/login") await initSortDirs();
   const m = { "#/login": renderLogin, "#/dashboard": renderDashboard, "#/timeline": () => renderTimeline(), "#/concerts": () => renderConcerts(), "#/albums": () => renderAlbums(),     "#/news": () => renderNews(),     "#/members": () => renderMembers(),     "#/photos": () => renderPhotos(), "#/videos": () => renderTable("videos") };
   (m[hash] || renderDashboard)();
 }
@@ -119,7 +141,7 @@ const tableConfig = {
 async function renderTable(section) {
   const cfg = tableConfig[section];
   const data = await api(`/${section}`) || [];
-  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>${cfg.title}</h2><button class="btn btn-primary" onclick="openAdd('${section}')">+ Přidat</button></div>
+  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>${cfg.title}</h2><div class="toolbar-actions">${sortToggle(section)}<button class="btn btn-primary" onclick="openAdd('${section}')">+ Přidat</button></div></div>
     <table><thead><tr>${cfg.cols.map((c) => `<th>${cfg.fields.find((f) => f.key === c).label}</th>`).join("")}<th></th></tr></thead>
     <tbody>${data.length ? data.map((r) => `<tr>${cfg.row(r).map((c) => `<td>${c ?? ""}</td>`).join("")}<td class="actions"><button class="btn btn-sm btn-edit" onclick="openEdit('${section}',${r.id})">✏️ Upravit</button> <button class="btn btn-sm btn-del" onclick="delItem('${section}',${r.id})">🗑️</button></td></tr>`).join("") : `<tr><td colspan="${cfg.cols.length+1}" class="empty">Žádné záznamy</td></tr>`}</tbody></table></div>`);
 }
@@ -179,7 +201,7 @@ async function renderConcerts() {
   const data = await api("/concerts") || [];
   const upcoming = data.filter((r) => r.is_upcoming);
   const past = data.filter((r) => !r.is_upcoming);
-  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Koncerty</h2><button class="btn btn-primary" onclick="openConcertAdd()">+ Přidat</button></div>
+  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Koncerty</h2><div class="toolbar-actions">${sortToggle("concerts")}<button class="btn btn-primary" onclick="openConcertAdd()">+ Přidat</button></div></div>
     <table><thead><tr><th>Datum</th><th>Událost</th><th>Místo</th><th>Čas</th><th>Typ</th><th></th></tr></thead>
     <tbody>${data.length ? data.map((r) => `<tr><td>${r.date}</td><td>${r.event}</td><td>${r.place}</td><td>${r.time ?? "—"}</td><td>${r.is_upcoming ? "🔜 Nadcházející" : "✅ Proběhlé"}</td><td class="actions"><button class="btn btn-sm btn-edit" onclick="openConcertEdit(${r.id})">✏️</button> <button class="btn btn-sm btn-del" onclick="delConcert(${r.id})">🗑️</button></td></tr>`).join("") : `<tr><td colspan="6" class="empty">Žádné koncerty</td></tr>`}</tbody></table></div>`);
 }
@@ -240,7 +262,7 @@ async function renderAlbums() {
   (lyrics||[]).forEach((l) => { if (!lyricsBySong[l.song_id]) lyricsBySong[l.song_id] = []; lyricsBySong[l.song_id].push(l); });
   const songsByAlbum = {};
   (songs||[]).forEach((s) => { if (!songsByAlbum[s.album_id]) songsByAlbum[s.album_id] = []; songsByAlbum[s.album_id].push(s); });
-  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Alba</h2><button class="btn btn-primary" onclick="openAlbumAdd()">+ Přidat album</button></div>
+  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Alba</h2><div class="toolbar-actions">${sortToggle("albums")}<button class="btn btn-primary" onclick="openAlbumAdd()">+ Přidat album</button></div></div>
     <table><thead><tr><th>Název</th><th>Cover</th><th>Skladby</th><th></th></tr></thead>
     <tbody>${(albums||[]).length ? (albums||[]).map((a) => `<tr><td><strong>${a.title}</strong></td><td>${a.cover ? `<img src="${a.cover}" style="width:60px;height:40px;object-fit:cover;border-radius:4px">` : "—"}</td>
     <td><ul class="song-list">${(songsByAlbum[a.id]||[]).map((s) => `<li><span><strong>${s.title}</strong>${(lyricsBySong[s.id]||[]).length ? `<div class="lyrics-preview">${(lyricsBySong[s.id]||[]).slice(0,3).map((l) => l.line).join(" / ")}${(lyricsBySong[s.id]||[]).length > 3 ? "…" : ""}</div>` : ""}</span><span class="mini-actions"><button class="btn btn-icon" onclick="openSongEdit(${s.id})" title="Upravit skladbu">✏️</button><button class="btn btn-icon" onclick="openLyricsEdit(${s.id})" title="Upravit text">📝</button><button class="btn btn-icon" onclick="delSong(${s.id})" title="Smazat" style="color:var(--accent)">🗑️</button></span></li>`).join("")}
@@ -367,27 +389,20 @@ window.delSong = async (id) => {
 /* Lyrics CRUD */
 window.openLyricsEdit = (songId) => {
   api(`/lyrics?song_id=${songId}`).then((lyrics) => {
-    const lines = (lyrics||[]).sort((a, b) => a.line_order - b.line_order);
-    modal(`<h2>Upravit text skladby</h2><p class="hint" style="margin-bottom:16px;font-size:13px;color:var(--text2)">Každý řádek zvlášť. Prázdné řádky smažou daný řádek.</p><form id="form"><div id="lyrics-container">${lines.length ? lines.map((l, i) => `<div class="form-group"><textarea name="line_${l.id}" rows="1" style="min-height:36px">${l.line.replace(/"/g,"&quot;")}</textarea></div>`).join("") : '<div class="form-group"><textarea name="line_new" rows="1" style="min-height:36px"></textarea></div>'}</div><button type="button" class="btn btn-sm btn-edit" onclick="addLyricLine()" style="margin-bottom:16px">+ Přidat řádek</button><div class="modal-actions"><button type="button" class="btn btn-cancel" onclick="closeModal()">Zrušit</button><button type="submit" class="btn btn-primary">Uložit</button></div></form>`);
-    let nextId = 0;
-    window.addLyricLine = () => {
-      const c = document.getElementById("lyrics-container");
-      const div = document.createElement("div"); div.className = "form-group";
-      div.innerHTML = `<textarea name="new_${nextId++}" rows="1" style="min-height:36px"></textarea>`;
-      c.appendChild(div);
-    };
+    const lines = (lyrics||[]).sort((a, b) => a.line_order - b.line_order).map((l) => l.line);
+    const text = lines.join("\n");
+    modal(`<h2>Upravit text skladby</h2><p class="hint" style="margin-bottom:16px;font-size:13px;color:var(--text2)">Každý řádek zvlášť. Prázdné řádky budou odstraněny.</p><form id="form"><div class="form-group"><textarea name="text" rows="15" style="font-family:inherit;white-space:pre">${text.replace(/"/g,"&quot;")}</textarea></div><div class="modal-actions"><button type="button" class="btn btn-cancel" onclick="closeModal()">Zrušit</button><button type="submit" class="btn btn-primary">Uložit</button></div></form>`);
     document.getElementById("form").onsubmit = async (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
-      const updates = [];
-      const news = [];
-      for (const [key, val] of fd.entries()) {
-        if (key.startsWith("line_")) updates.push({ id: Number(key.replace("line_", "")), line: val });
-        else if (key.startsWith("new_")) { if (val.trim()) news.push(val); }
+      const raw = fd.get("text") || "";
+      const newLines = raw.split("\n");
+      for (const l of lyrics||[]) {
+        await api(`/lyrics/${l.id}`, { method: "DELETE" });
       }
-      await Promise.all(updates.map((u) => api(`/lyrics/${u.id}`, { method: "PUT", body: JSON.stringify({ line: u.line }) })));
-      let order = (lines[lines.length-1]?.line_order ?? -1) + 1;
-      for (const l of news) { await api("/lyrics", { method: "POST", body: JSON.stringify({ song_id: songId, line: l, line_order: order++ }) }); }
+      for (let i = 0; i < newLines.length; i++) {
+        await api("/lyrics", { method: "POST", body: JSON.stringify({ song_id: songId, line: newLines[i], line_order: i }) });
+      }
       closeModal(); toast("Text uložen"); renderAlbums();
     };
   });
@@ -403,31 +418,27 @@ const timelineFields = [
 
 async function renderTimeline() {
   const data = await api("/timeline") || [];
-  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Timeline (O kapele)</h2><button class="btn btn-primary" onclick="openTimelineAdd()">+ Přidat</button></div>
+  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Timeline (O kapele)</h2><div class="toolbar-actions">${sortToggle("timeline")}<button class="btn btn-primary" onclick="openTimelineAdd()">+ Přidat</button></div></div>
     <table><thead><tr><th>Rok</th><th>Text</th><th>Obrázek</th><th>Pořadí</th><th></th></tr></thead>
     <tbody>${data.length ? data.map((r) => `<tr><td>${r.year||""}</td><td>${(r.text||"").slice(0,60)+(r.text?.length>60?"…":"")}</td><td>${r.img ? `<img src="${r.img}" style="width:60px;height:40px;object-fit:cover;border-radius:4px">` : "—"}</td><td>${r.sort_order}</td><td class="actions"><button class="btn btn-sm btn-edit" onclick="openTimelineEdit(${r.id})">✏️</button> <button class="btn btn-sm btn-del" onclick="delItem('timeline',${r.id})">🗑️</button></td></tr>`).join("") : `<tr><td colspan="5" class="empty">Žádné záznamy</td></tr>`}</tbody></table></div>`);
 }
 
+function galleryModal(html) {
+  const overlay = document.getElementById("galleryModal");
+  document.getElementById("galleryContent").innerHTML = html;
+  overlay.classList.add("open");
+  overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.remove("open"); };
+}
+
+function closeGalleryModal() { document.getElementById("galleryModal").classList.remove("open"); }
+
 async function openGalleryPicker(callback) {
-  window._galleryPrevHTML = document.getElementById("modalContent").innerHTML;
-  const overlay = document.getElementById("modal");
   const photos = await api("/photos") || [];
-  modal(`<h2>Vybrat fotku z galerie</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;max-height:60vh;overflow-y:auto;padding:4px">${photos.length ? photos.map((p) => `<div class="gallery-item" onclick="pickGalleryItem('${p.src.replace(/'/g,"\\'")}')" style="cursor:pointer;border:2px solid transparent;border-radius:6px;overflow:hidden;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='transparent'"><img src="${p.src}" alt="${p.alt||''}" style="width:100%;height:80px;object-fit:cover;display:block"></div>`).join("") : '<p style="color:var(--text2)">Žádné fotky v galerii</p>'}</div><div class="modal-actions"><button type="button" class="btn btn-cancel" onclick="cancelGallery()">Zrušit</button></div>`);
+  galleryModal(`<h2>Vybrat fotku z galerie</h2><div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:8px;max-height:60vh;overflow-y:auto;padding:4px">${photos.length ? photos.map((p) => `<div class="gallery-item" onclick="pickGalleryItem('${p.src.replace(/'/g,"\\'")}')" style="cursor:pointer;border:2px solid transparent;border-radius:6px;overflow:hidden;transition:border-color .15s" onmouseover="this.style.borderColor='var(--accent)'" onmouseout="this.style.borderColor='transparent'"><img src="${p.src}" alt="${p.alt||''}" style="width:100%;height:80px;object-fit:cover;display:block"></div>`).join("") : '<p style="color:var(--text2)">Žádné fotky v galerii</p>'}</div><div class="modal-actions"><button type="button" class="btn btn-cancel" onclick="closeGalleryModal()">Zrušit</button></div>`);
   window.pickGalleryItem = (src) => {
-    closeModal();
-    restoreGalleryContent();
+    closeGalleryModal();
     callback(src);
   };
-  window.cancelGallery = () => {
-    closeModal();
-    restoreGalleryContent();
-  };
-  function restoreGalleryContent() {
-    document.getElementById("modalContent").innerHTML = window._galleryPrevHTML;
-    overlay.classList.add("open");
-    overlay.onclick = (e) => { if (e.target === overlay) overlay.classList.remove("open"); };
-    window._galleryPrevHTML = null;
-  }
 }
 
 window.openTimelineAdd = () => {
@@ -518,7 +529,7 @@ const newsFields = [
 
 async function renderNews() {
   const data = await api("/news") || [];
-  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Novinky</h2><button class="btn btn-primary" onclick="openNewsAdd()">+ Přidat</button></div>
+  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Novinky</h2><div class="toolbar-actions">${sortToggle("news")}<button class="btn btn-primary" onclick="openNewsAdd()">+ Přidat</button></div></div>
     <table><thead><tr><th>Datum</th><th>Název</th><th>Obrázek</th><th>Odkaz</th><th></th></tr></thead>
     <tbody>${data.length ? data.map((r) => `<tr><td>${r.date||""}</td><td>${(r.title||"").slice(0,50)+(r.title?.length>50?"…":"")}</td><td>${r.image ? `<img src="${r.image}" style="width:60px;height:40px;object-fit:cover;border-radius:4px">` : "—"}</td><td>${r.link ? `<a href="${r.link}" target="_blank">🔗</a>` : "—"}</td><td class="actions"><button class="btn btn-sm btn-edit" onclick="openNewsEdit(${r.id})">✏️</button> <button class="btn btn-sm btn-del" onclick="delItem('news',${r.id})">🗑️</button></td></tr>`).join("") : `<tr><td colspan="5" class="empty">Žádné novinky</td></tr>`}</tbody></table></div>`);
 }
@@ -596,7 +607,7 @@ window.openNewsEdit = (id) => {
 /* ─── Photos (with upload) ─── */
 async function renderPhotos() {
   const data = await api("/photos") || [];
-  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Fotky</h2><button class="btn btn-primary" onclick="openPhotoAdd()">+ Přidat</button></div>
+  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Fotky</h2><div class="toolbar-actions">${sortToggle("photos")}<button class="btn btn-primary" onclick="openPhotoAdd()">+ Přidat</button></div></div>
     <table><thead><tr><th>Náhled</th><th>Cesta</th><th>Alt text</th><th></th></tr></thead>
     <tbody>${data.length ? data.map((r) => `<tr><td><img src="${r.src}" alt="${r.alt}" style="width:60px;height:40px;object-fit:cover;border-radius:4px"></td><td>${(r.src||"").slice(0,30)}…</td><td>${r.alt||""}</td><td class="actions"><button class="btn btn-sm btn-edit" onclick="openPhotoEdit(${r.id})">✏️</button> <button class="btn btn-sm btn-del" onclick="delItem('photos',${r.id})">🗑️</button></td></tr>`).join("") : `<tr><td colspan="4" class="empty">Žádné fotky</td></tr>`}</tbody></table></div>`);
 }
@@ -647,13 +658,49 @@ const memberFields = [
   { key: "name", label: "Jméno", type: "text" },
   { key: "role", label: "Role", type: "text" },
   { key: "description", label: "Popis", type: "textarea" },
-  { key: "equipment", label: "Vybavení (JSON pole {name,link}[])", type: "textarea" },
   { key: "sort_order", label: "Pořadí", type: "number" },
 ];
 
+function renderEquipmentEditor(json) {
+  const items = (() => { try { return JSON.parse(json); } catch { return []; } })();
+  let html = `<div class="form-group"><label>Vybavení</label><div id="equipment-list">`;
+  for (let i = 0; i < items.length; i++) {
+    html += equipmentItemHTML(i, items[i].name, items[i].link || "");
+  }
+  html += `</div><button type="button" class="btn btn-sm btn-edit" onclick="addEquipmentItem()" style="margin-top:8px">+ Přidat položku</button></div>`;
+  return html;
+}
+
+function equipmentItemHTML(i, name, link) {
+  return `<div class="equipment-row" style="display:flex;gap:8px;align-items:center;margin-bottom:6px">
+    <input type="text" name="eq_name_${i}" value="${String(name||"").replace(/"/g,"&quot;")}" placeholder="Název" style="flex:2">
+    <input type="text" name="eq_link_${i}" value="${String(link||"").replace(/"/g,"&quot;")}" placeholder="Odkaz (volitelný)" style="flex:2">
+    <button type="button" class="btn btn-sm btn-del" onclick="this.closest('.equipment-row').remove()">✕</button>
+  </div>`;
+}
+
+window.addEquipmentItem = () => {
+  const list = document.getElementById("equipment-list");
+  const i = list.children.length;
+  const div = document.createElement("div"); div.className = "equipment-row";
+  div.style.cssText = "display:flex;gap:8px;align-items:center;margin-bottom:6px";
+  div.innerHTML = `<input type="text" name="eq_name_${i}" placeholder="Název" style="flex:2"><input type="text" name="eq_link_${i}" placeholder="Odkaz (volitelný)" style="flex:2"><button type="button" class="btn btn-sm btn-del" onclick="this.closest('.equipment-row').remove()">✕</button>`;
+  list.appendChild(div);
+};
+
+function collectEquipment() {
+  const rows = document.querySelectorAll("#equipment-list .equipment-row");
+  const items = [];
+  rows.forEach((r, i) => {
+    const name = r.querySelector(`[name="eq_name_${i}"]`)?.value?.trim();
+    if (name) items.push({ name, link: r.querySelector(`[name="eq_link_${i}"]`)?.value?.trim() || undefined });
+  });
+  return items.length ? JSON.stringify(items) : null;
+}
+
 async function renderMembers() {
   const data = await api("/members") || [];
-  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Členové kapely</h2><button class="btn btn-primary" onclick="openMemberAdd()">+ Přidat</button></div>
+  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Členové kapely</h2><div class="toolbar-actions">${sortToggle("members")}<button class="btn btn-primary" onclick="openMemberAdd()">+ Přidat</button></div></div>
     <table><thead><tr><th>Foto</th><th>Jméno</th><th>Role</th><th></th></tr></thead>
     <tbody>${data.length ? data.map((r) => `<tr><td>${r.photo ? `<img src="${r.photo}" style="width:48px;height:48px;object-fit:cover;border-radius:50%">` : "—"}</td><td><strong>${r.name||""}</strong></td><td>${r.role||""}</td><td class="actions"><button class="btn btn-sm btn-edit" onclick="openMemberEdit(${r.id})">✏️</button> <button class="btn btn-sm btn-del" onclick="delItem('members',${r.id})">🗑️</button></td></tr>`).join("") : `<tr><td colspan="4" class="empty">Žádní členové</td></tr>`}</tbody></table></div>`);
 }
@@ -670,6 +717,7 @@ window.openMemberAdd = () => {
       <img id="memberPhotoPreview" style="max-width:200px;max-height:100px;margin-top:8px;border-radius:4px;display:none">
     </div>
     ${memberFields.map((f) => f.type === "textarea" ? `<div class="form-group"><label>${f.label}</label><textarea name="${f.key}"></textarea></div>` : `<div class="form-group"><label>${f.label}</label><input type="${f.type}" name="${f.key}"></div>`).join("")}
+    ${renderEquipmentEditor("")}
     <div class="modal-actions"><button type="button" class="btn btn-cancel" onclick="closeModal()">Zrušit</button><button type="submit" class="btn btn-primary" id="saveBtn">Uložit</button></div></form>`);
   document.getElementById("form").onsubmit = async (e) => {
     e.preventDefault();
@@ -685,6 +733,8 @@ window.openMemberAdd = () => {
     window._mp = null;
     const body = {};
     memberFields.forEach((f) => { const v = fd.get(f.key); if (v) body[f.key] = f.type === "number" ? Number(v) : v; });
+    const eq = collectEquipment();
+    if (eq) body.equipment = eq;
     if (photo) body.photo = photo;
     await api("/members", { method: "POST", body: JSON.stringify(body) });
     closeModal(); toast("Člen přidán"); renderMembers();
@@ -706,6 +756,7 @@ window.openMemberEdit = (id) => {
         ${item.photo ? `<img id="memberPhotoPreview" src="${item.photo}" style="max-width:200px;max-height:100px;margin-top:8px;border-radius:4px">` : `<img id="memberPhotoPreview" style="max-width:200px;max-height:100px;margin-top:8px;border-radius:4px;display:none">`}
       </div>
       ${memberFields.map((f) => f.type === "textarea" ? `<div class="form-group"><label>${f.label}</label><textarea name="${f.key}">${item[f.key] ?? ""}</textarea></div>` : `<div class="form-group"><label>${f.label}</label><input type="${f.type}" name="${f.key}" value="${String(item[f.key] ?? "").replace(/"/g,"&quot;")}"></div>`).join("")}
+      ${renderEquipmentEditor(item.equipment || "")}
       <div class="modal-actions"><button type="button" class="btn btn-cancel" onclick="closeModal()">Zrušit</button><button type="submit" class="btn btn-primary" id="saveBtn">Uložit</button></div></form>`);
     document.getElementById("form").onsubmit = async (e) => {
       e.preventDefault();
@@ -721,6 +772,8 @@ window.openMemberEdit = (id) => {
       window._mp = null;
       const body = {};
       memberFields.forEach((f) => { const v = fd.get(f.key); if (v !== "") body[f.key] = f.type === "number" ? Number(v) : v; });
+      const eq = collectEquipment();
+      if (eq) body.equipment = eq;
       body.photo = photo;
       await api(`/members/${id}`, { method: "PUT", body: JSON.stringify(body) });
       closeModal(); toast("Člen uložen"); renderMembers();

@@ -44,6 +44,7 @@ body{font-family:'Space Grotesk',sans-serif;background:var(--bg);color:var(--tex
 /* Table */
 .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
 .table-wrap .toolbar{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid var(--border)}
+.table-wrap .toolbar-actions{display:flex;gap:6px;align-items:center}
 .table-wrap .toolbar h2{font-size:16px;margin:0}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;text-decoration:none;transition:.15s}
 .btn-primary{background:var(--accent);color:#fff}
@@ -100,6 +101,7 @@ td.actions{white-space:nowrap;text-align:right}
 <body>
 <div id="app"></div>
 <div id="modal" class="modal-overlay"><div class="modal" id="modalContent"></div></div>
+<div id="galleryModal" class="modal-overlay"><div class="modal" id="galleryContent"></div></div>
 <div id="toast" class="toast"></div>
 <script src="app.js"></script>
 </body>

@@ -59,6 +59,9 @@ export async function initDb() {
     id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, role TEXT NOT NULL,
     photo TEXT, description TEXT, equipment TEXT, sort_order INTEGER DEFAULT 0
   );`);
+  db.run(`CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY, value TEXT NOT NULL
+  );`);
 
   for (const t of ["timeline", "concerts", "albums", "songs", "lyrics", "news", "photos", "videos", "members"]) {
     try { db.run(`ALTER TABLE ${t} ADD COLUMN sort_order INTEGER DEFAULT 0`); } catch (_) {}
@@ -99,4 +102,9 @@ function exec(sql) {
   save();
 }
 
-export default { all, one, run, exec };
+function getSortDir(table) {
+  const row = one("SELECT value FROM settings WHERE key = ?", [`sort_dir_${table}`]);
+  return row?.value === "desc" ? "DESC" : "ASC";
+}
+
+export default { all, one, run, exec, getSortDir };

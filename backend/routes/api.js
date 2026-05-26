@@ -3,13 +3,19 @@ import db from "../db.js";
 
 const router = Router();
 
-router.get("/timeline", (_req, res) => {
-  const rows = db.all("SELECT * FROM timeline ORDER BY sort_order ASC");
+function sortDir(req, table) {
+  if (req.query.sort === "asc" || req.query.sort === "desc") return req.query.sort.toUpperCase();
+  return db.getSortDir(table);
+}
+
+router.get("/timeline", (req, res) => {
+  const rows = db.all(`SELECT * FROM timeline ORDER BY sort_order ${sortDir(req, "timeline")}`);
   res.json(rows);
 });
 
-router.get("/concerts", (_req, res) => {
-  const rows = db.all("SELECT * FROM concerts ORDER BY sort_order ASC");
+router.get("/concerts", (req, res) => {
+  const dir = sortDir(req, "concerts");
+  const rows = db.all(`SELECT * FROM concerts ORDER BY sort_order ${dir}`);
   const upcoming = rows.filter((r) => r.is_upcoming).map(fmtConcert);
   const past = rows.filter((r) => !r.is_upcoming).map(fmtConcert);
   res.json({ upcoming, past });
@@ -29,9 +35,10 @@ function fmtConcert(r) {
   };
 }
 
-router.get("/discography", (_req, res) => {
-  const albums = db.all("SELECT * FROM albums ORDER BY sort_order ASC");
-  const allSongs = db.all("SELECT * FROM songs ORDER BY sort_order ASC");
+router.get("/discography", (req, res) => {
+  const dir = sortDir(req, "albums");
+  const albums = db.all(`SELECT * FROM albums ORDER BY sort_order ${dir}`);
+  const allSongs = db.all(`SELECT * FROM songs ORDER BY sort_order ${dir}`);
   const allLyrics = db.all("SELECT * FROM lyrics ORDER BY line_order ASC");
 
   const lyricsBySong = {};
@@ -59,8 +66,8 @@ router.get("/discography", (_req, res) => {
   });
 });
 
-router.get("/news", (_req, res) => {
-  const rows = db.all("SELECT * FROM news ORDER BY sort_order ASC");
+router.get("/news", (req, res) => {
+  const rows = db.all(`SELECT * FROM news ORDER BY sort_order ${sortDir(req, "news")}`);
   res.json({
     articles: rows.map((r) => ({
       id: String(r.id),
@@ -74,18 +81,18 @@ router.get("/news", (_req, res) => {
   });
 });
 
-router.get("/photos", (_req, res) => {
-  const rows = db.all("SELECT * FROM photos ORDER BY sort_order ASC");
+router.get("/photos", (req, res) => {
+  const rows = db.all(`SELECT * FROM photos ORDER BY sort_order ${sortDir(req, "photos")}`);
   res.json(rows.map((r) => ({ src: r.src, alt: r.alt })));
 });
 
-router.get("/videos", (_req, res) => {
-  const rows = db.all("SELECT * FROM videos ORDER BY sort_order ASC");
+router.get("/videos", (req, res) => {
+  const rows = db.all(`SELECT * FROM videos ORDER BY sort_order ${sortDir(req, "videos")}`);
   res.json(rows.map((r) => r.youtube_id));
 });
 
-router.get("/members", (_req, res) => {
-  const rows = db.all("SELECT * FROM members ORDER BY sort_order ASC");
+router.get("/members", (req, res) => {
+  const rows = db.all(`SELECT * FROM members ORDER BY sort_order ${sortDir(req, "members")}`);
   res.json(rows);
 });
 

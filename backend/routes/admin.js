@@ -40,6 +40,20 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
   }
 });
 
+router.get("/sort-dir", auth, (req, res) => {
+  const rows = db.all("SELECT * FROM settings WHERE key LIKE 'sort_dir_%'");
+  const dirs = {};
+  for (const r of rows) dirs[r.key.replace("sort_dir_", "")] = r.value;
+  res.json(dirs);
+});
+
+router.post("/sort-dir", auth, (req, res) => {
+  const { section, dir } = req.body;
+  if (!section || !dir) return res.status(400).json({ error: "section and dir required" });
+  db.run("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", [`sort_dir_${section}`, dir]);
+  res.json({ success: true });
+});
+
 function crud(table, fields) {
   const r = Router();
   r.use(auth);
@@ -52,14 +66,22 @@ function crud(table, fields) {
       sql += " WHERE " + q.map(([k]) => `${k} = ?`).join(" AND ");
       q.forEach(([, v]) => params.push(v));
     }
-    sql += " ORDER BY sort_order ASC";
+    const dir = req.query.sort === "desc" ? "DESC" : "ASC";
+    sql += ` ORDER BY sort_order ${dir}`;
     const rows = db.all(sql, params);
     res.json(rows);
   });
 
   r.post("/", (req, res) => {
     const f = {};
-    for (const k of fields) f[k] = req.body[k] ?? null;
+    for (const k of fields) {
+      if (k === "sort_order" && req.body[k] === undefined) {
+        const row = db.one(`SELECT COALESCE(MAX(sort_order), 0) + 1 as next FROM ${table}`);
+        f[k] = row.next;
+      } else {
+        f[k] = req.body[k] ?? null;
+      }
+    }
     const cols = Object.keys(f).join(", ");
     const vals = Object.values(f);
     const ph = vals.map(() => "?").join(", ");
