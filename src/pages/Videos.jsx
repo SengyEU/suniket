@@ -1,6 +1,16 @@
-import videos from "../data/videos.json";
+import { useState, useEffect } from "react";
+import { fetchVideos } from "../api";
 
 function Videos() {
+    const [videos, setVideos] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchVideos().then((data) => { setVideos(data); setLoading(false); });
+    }, []);
+
+    if (loading) return null;
+
     return (
         <section className="py-16 max-w-screen-xl mx-auto px-4">
             <h2 className="text-4xl font-bold text-center text-red-sun mb-12">Videogalerie</h2>

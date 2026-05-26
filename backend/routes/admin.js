@@ -1,0 +1,111 @@
+import { Router } from "express";
+import multer from "multer";
+import sharp from "sharp";
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import crypto from "crypto";
+import db from "../db.js";
+import auth from "../middleware/auth.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const uploadDir = path.join(__dirname, "..", "uploads", "photos");
+if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir, { recursive: true });
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 }, fileFilter: (_req, file, cb) => {
+  if (!file.mimetype.startsWith("image/")) return cb(new Error("Only images allowed"));
+  cb(null, true);
+}});
+
+const router = Router();
+
+router.post("/login", (req, res) => {
+  const { password } = req.body;
+  if (password === process.env.ADMIN_API_KEY) {
+    return res.json({ success: true, token: password });
+  }
+  return res.status(401).json({ error: "Invalid password" });
+});
+
+router.post("/upload", auth, upload.single("file"), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: "No file uploaded" });
+    const name = crypto.randomUUID() + ".webp";
+    const outPath = path.join(uploadDir, name);
+    await sharp(req.file.buffer).webp({ quality: 85 }).toFile(outPath);
+    res.json({ src: "/uploads/photos/" + name });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+function crud(table, fields) {
+  const r = Router();
+  r.use(auth);
+
+  r.get("/", (req, res) => {
+    let sql = `SELECT * FROM ${table}`;
+    const params = [];
+    const q = Object.entries(req.query).filter(([k]) => fields.includes(k));
+    if (q.length) {
+      sql += " WHERE " + q.map(([k]) => `${k} = ?`).join(" AND ");
+      q.forEach(([, v]) => params.push(v));
+    }
+    sql += " ORDER BY sort_order ASC";
+    const rows = db.all(sql, params);
+    res.json(rows);
+  });
+
+  r.post("/", (req, res) => {
+    const f = {};
+    for (const k of fields) f[k] = req.body[k] ?? null;
+    const cols = Object.keys(f).join(", ");
+    const vals = Object.values(f);
+    const ph = vals.map(() => "?").join(", ");
+    const info = db.run(`INSERT INTO ${table} (${cols}) VALUES (${ph})`, vals);
+    const row = db.one(`SELECT * FROM ${table} WHERE id = ?`, [info.lastInsertRowid]);
+    res.status(201).json(row);
+  });
+
+  r.put("/:id", (req, res) => {
+    const f = {};
+    for (const k of fields) {
+      if (req.body[k] !== undefined) f[k] = req.body[k];
+    }
+    const sets = Object.keys(f).map((k) => `${k} = ?`).join(", ");
+    const vals = [...Object.values(f), req.params.id];
+    db.run(`UPDATE ${table} SET ${sets} WHERE id = ?`, vals);
+    const row = db.one(`SELECT * FROM ${table} WHERE id = ?`, [req.params.id]);
+    res.json(row);
+  });
+
+  r.delete("/:id", (_req, res) => {
+    db.run(`DELETE FROM ${table} WHERE id = ?`, [_req.params.id]);
+    res.json({ success: true });
+  });
+
+  return r;
+}
+
+const timelineFields = ["year", "text", "img", "alt", "sort_order"];
+const concertFields = ["is_upcoming", "date", "event", "link", "place", "time", "entry", "entry_has_link", "entry_price", "entry_link", "sort_order"];
+const albumFields = ["title", "cover", "description", "sort_order"];
+const songFields = ["album_id", "title", "sort_order"];
+const lyricFields = ["song_id", "line", "line_order", "sort_order"];
+const newsFields = ["date", "title", "description", "image", "link", "link_text", "sort_order"];
+const photoFields = ["src", "alt", "sort_order"];
+const videoFields = ["youtube_id", "sort_order"];
+const memberFields = ["name", "role", "photo", "description", "equipment", "sort_order"];
+
+router.use("/timeline", crud("timeline", timelineFields));
+router.use("/concerts", crud("concerts", concertFields));
+router.use("/albums", crud("albums", albumFields));
+router.use("/songs", crud("songs", songFields));
+router.use("/lyrics", crud("lyrics", lyricFields));
+router.use("/news", crud("news", newsFields));
+router.use("/photos", crud("photos", photoFields));
+router.use("/videos", crud("videos", videoFields));
+router.use("/members", crud("members", memberFields));
+
+export default router;

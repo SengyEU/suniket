@@ -1,9 +1,18 @@
 import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import concertsData from "../data/concerts.json";
+import { useState, useEffect } from "react";
+import { fetchConcerts } from "../api";
 
 function Tour() {
-    const { upcoming, past } = concertsData;
+    const [upcoming, setUpcoming] = useState([]);
+    const [past, setPast] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchConcerts().then((data) => { setUpcoming(data.upcoming); setPast(data.past); setLoading(false); });
+    }, []);
+
+    if (loading) return null;
 
     const TableHeader = () => (
         <div className="grid text-sm sm:text-base md:text-lg grid-cols-5 font-bold bg-white/10 border-b-2 border-red-sun p-4 rounded-lg">

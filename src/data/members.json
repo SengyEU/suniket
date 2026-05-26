@@ -1,0 +1,32 @@
+[
+    {
+        "name": "Victor Hrazdil",
+        "role": "Zpěv",
+        "description": "Frontman kapely, občasný autor textů. Na pódiu vždy přináší maximum energie a komunikace s publikem.",
+        "equipment": "[{\"name\":\"Mikrofon Behringer XM8500\",\"link\":\"https://kytary.cz/behringer-xm8500/HN225257/\"},{\"name\":\"IEM KZ EDX Lite\",\"link\":\"https://kz-audio.com/kz-edx-lite.html\"}]"
+    },
+    {
+        "name": "Lukáš Janata",
+        "role": "Kytara",
+        "description": "Hlavní sólista kapely, autor výrazných riffů a melodických linek. Na pódiu přináší energii a virtuozitu.",
+        "equipment": "[{\"name\":\"Kytara Harley Benton SC-CUSTOM II Silverburst\",\"link\":\"https://reverb.com/en-cz/item/44640839\"},{\"name\":\"Zesilovač Hughes & Kettner TubeMeister 36\",\"link\":\"https://www.muziker.cz/hughes-kettner-tubemeister-36-head\"},{\"name\":\"Reprobox Harley Benton G212 Vertical Celestion V30\",\"link\":\"https://www.thomann.de/cz/harley_benton_g212_vintage_vertical.htm\"}]"
+    },
+    {
+        "name": "Marek Dudkovič",
+        "role": "Kytara",
+        "description": "Hlavní textař a songwriter kapely. Specialista na tvrdé akordy a groove, který drží kapelu pohromadě.",
+        "equipment": "[{\"name\":\"Kytara Epiphone Les Paul Custom Alpine White\",\"link\":\"https://kytary.cz/epiphone-les-paul-custom-alpine-white/HN289519/\"},{\"name\":\"Zesilovač Fender Champion 100 Snow White\",\"link\":\"https://www.gear4music.cz/cs/Kytara-baskytara/1EXI\"}]"
+    },
+    {
+        "name": "Dominik Hrazdil",
+        "role": "Baskytara",
+        "description": "Rytmická opora kapely, propojuje bicí a kytary.",
+        "equipment": "[{\"name\":\"Basa Cort\"},{\"name\":\"Zesilovač ???\"}]"
+    },
+    {
+        "name": "Kryštof Doležel",
+        "role": "Bicí",
+        "description": "Dynamický bubeník, který tvoří srdce kapely. Silné a precizní údery, umí pracovat s tempem i výrazy.",
+        "equipment": "[{\"name\":\"Bicí Tama Starclassic Performer Sky Blue Aurora\",\"link\":\"https://kytary.cz/tama-starclassic-performer-sky-blue-aurora-rock-set-ii/HN287835/\"},{\"name\":\"Činely Meinl Classics Custom Dark\",\"link\":\"https://kytary.cz/meinl-classics-custom-dark-cymbal-set/HN220021/\"}]"
+    }
+]

@@ -1,23 +1,17 @@
+import { useState, useEffect } from "react";
+import { fetchMembers, assetUrl } from "../../api";
 import Template from "./Template";
 
 export default function Singer() {
-    const data = {
-        name: "Victor Hrazdil",
-        instrument: "Zpěv",
-        description:
-            "Frontman kapely, občasný autor textů. Na pódiu vždy přináší maximum energie a komunikace s publikem.",
-        photo: "/img/band/singer.webp",
-        gear: [
-            {
-                name: "Mikrofon Behringer XM8500",
-                link: "https://kytary.cz/behringer-xm8500/HN225257/",
-            },
-            {
-                name: "IEM KZ EDX Lite",
-                link: "https://kz-audio.com/kz-edx-lite.html",
-            },
-        ],
-    };
+    const [data, setData] = useState(null);
 
+    useEffect(() => {
+        fetchMembers().then((members) => {
+            const m = members.find((x) => x.name === "Victor Hrazdil");
+            if (m) setData({ name: m.name, instrument: m.role, description: m.description, photo: assetUrl(m.photo), gear: m.equipment ? JSON.parse(m.equipment) : [] });
+        });
+    }, []);
+
+    if (!data) return null;
     return <Template {...data} />;
 }

@@ -1,9 +1,17 @@
 import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import newsData from "../data/news.json";
+import { useState, useEffect } from "react";
+import { fetchNews, assetUrl } from "../api";
 
 export default function News() {
-    const { articles } = newsData;
+    const [articles, setArticles] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchNews().then((data) => { setArticles(data.articles); setLoading(false); });
+    }, []);
+
+    if (loading) return null;
 
     return (
         <section className="relative py-16 max-w-[800px] mx-auto px-5 text-center">
@@ -19,7 +27,7 @@ export default function News() {
                         {/* Obrázek */}
                         <div className="w-full aspect-[4/3] overflow-hidden">
                             <img
-                                src={item.image}
+                                    src={assetUrl(item.image)}
                                 alt={item.title}
                                 className="w-full h-full object-cover transition-transform duration-500"
                             />

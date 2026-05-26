@@ -1,12 +1,18 @@
 import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
-import albumsData from "../data/discography.json";
-
-const albums = albumsData.albums;
+import { useState, useEffect } from "react";
+import { fetchDiscography, assetUrl } from "../api";
 
 export default function Discography() {
+    const [albums, setAlbums] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [openSong, setOpenSong] = useState(null);
+
+    useEffect(() => {
+        fetchDiscography().then((data) => { setAlbums(data.albums); setLoading(false); });
+    }, []);
+
+    if (loading) return null;
 
     const toggleLyrics = (albumIndex, songIndex) => {
         const key = `${albumIndex}-${songIndex}`;
@@ -27,7 +33,7 @@ export default function Discography() {
                         <div className="flex flex-col items-center lg:items-start gap-6">
                             <div className="w-full max-w-[400px] rounded-2xl">
                                 <img
-                                    src={album.cover}
+                                    src={assetUrl(album.cover)}
                                     alt={album.title}
                                     className="w-full h-auto object-cover rounded-2xl transition-transform duration-500 hover:rotate-45"
                                 />

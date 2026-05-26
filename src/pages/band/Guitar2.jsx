@@ -1,23 +1,17 @@
+import { useState, useEffect } from "react";
+import { fetchMembers, assetUrl } from "../../api";
 import Template from "./Template";
 
 export default function Guitar2() {
-    const data = {
-        name: "Marek Dudkovič",
-        instrument: "Kytara",
-        description:
-            "Hlavní textař a songwriter kapely. Specialista na tvrdé akordy a groove, který drží kapelu pohromadě.",
-        photo: "/img/band/guitar2.webp",
-        gear: [
-            {
-                name: "Kytara Epiphone Les Paul Custom Alpine White",
-                link: "https://kytary.cz/epiphone-les-paul-custom-alpine-white/HN289519/",
-            },
-            {
-                name: "Zesilovač Fender Champion 100 Snow White",
-                link: "https://www.gear4music.cz/cs/Kytara-baskytara/1EXI",
-            },
-        ],
-    };
+    const [data, setData] = useState(null);
 
+    useEffect(() => {
+        fetchMembers().then((members) => {
+            const m = members.find((x) => x.name === "Marek Dudkovič");
+            if (m) setData({ name: m.name, instrument: m.role, description: m.description, photo: assetUrl(m.photo), gear: m.equipment ? JSON.parse(m.equipment) : [] });
+        });
+    }, []);
+
+    if (!data) return null;
     return <Template {...data} />;
 }
