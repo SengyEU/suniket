@@ -1,36 +1,21 @@
 import { Outlet, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import Nav from "./Nav.jsx";
 import Footer from "./Footer.jsx";
 
 function Layout() {
     const location = useLocation();
-
-    useEffect(() => {
-        const titles = {
-            "/": "Domů",
-            "/o-nas": "O nás",
-            "/tour": "Tour",
-            "/galerie/foto": "Galerie",
-            "/galerie/video": "Galerie",
-            "/kontakt": "Kontakt",
-            "/diskografie": "Diskografie",
-            "/novinky": "Novinky",
-            "/merch": "Merch",
-            "/kapela/victor-hrazdil": "Kapela",
-            "/kapela/lukas-janata": "Kapela",
-            "/kapela/marek-dudkovic": "Kapela",
-            "/kapela/dominik-hrazdil": "Kapela",
-            "/kapela/krystof-dolezel": "Kapela",
-        };
-        const pageTitle = titles[location.pathname] || "";
-        document.title = `Suniket | ${pageTitle}`;
-    }, [location.pathname]);
-
     const isHome = location.pathname === "/";
 
     return (
-        <div className="relative min-h-dvh flex flex-col text-white-sun">
+        <>
+            <Helmet>
+                <meta property="og:type" content="website" />
+                <meta property="og:image" content="https://suniket.cz/img/og-image.jpg" />
+                <meta name="twitter:card" content="summary_large_image" />
+                <meta name="twitter:image" content="https://suniket.cz/img/og-image.jpg" />
+            </Helmet>
+            <div className="relative min-h-dvh flex flex-col text-white-sun">
             <div
                 className={`absolute top-0 left-0 right-0 bottom-0 ${isHome ? "" : "bg-black-sun"}`}
                 style={{
@@ -48,6 +33,7 @@ function Layout() {
             </main>
             <Footer />
         </div>
+        </>
     );
 }
 

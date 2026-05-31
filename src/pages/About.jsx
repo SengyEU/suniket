@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { fetchTimeline, assetUrl } from "../api";
 
 function About() {
@@ -16,12 +17,25 @@ function About() {
 
     return (
         <>
+            <Helmet>
+                <title>Suniket | O kapele</title>
+                <meta name="description" content="Historie a příběh české hardrockové kapely Suniket z Týnce nad Sázavou." />
+                <meta property="og:title" content="Suniket | O kapele" />
+                <meta property="og:description" content="Historie a příběh české hardrockové kapely Suniket z Týnce nad Sázavou." />
+                <meta property="og:url" content="https://suniket.cz/o-nas" />
+                <meta name="twitter:title" content="Suniket | O kapele" />
+                <meta name="twitter:description" content="Historie a příběh české hardrockové kapely Suniket z Týnce nad Sázavou." />
+                <link rel="canonical" href="https://suniket.cz/o-nas" />
+            </Helmet>
             <section className="relative py-16 max-w-[1152px] mx-auto px-5">
                 <h2 className="text-4xl font-bold text-center text-red-sun mb-16 relative z-10">Historie kapely</h2>
 
                 <div className="relative px-4">
                     <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-1 bg-red-dark-sun rounded z-0 h-full"></div>
 
+                    {timeline.length === 0 ? (
+                        <p className="text-white/60 text-lg text-center">Žádné události</p>
+                    ) : (
                     <div className="flex flex-col gap-20">
                         {timeline.map((item, index) => {
                             const isReverse = index % 2 !== 0;
@@ -49,6 +63,7 @@ function About() {
                             );
                         })}
                     </div>
+                    )}
                 </div>
             </section>
         </>

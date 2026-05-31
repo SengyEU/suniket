@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import LightGallery from "lightgallery/react";
 import lgZoom from "lightgallery/plugins/zoom";
 import lgThumbnail from "lightgallery/plugins/thumbnail";
@@ -19,9 +20,23 @@ function Photos() {
     if (loading) return null;
 
     return (
-        <section className="py-16 max-w-screen-xl mx-auto px-4">
+        <>
+            <Helmet>
+                <title>Suniket | Fotogalerie</title>
+                <meta name="description" content="Fotogalerie kapely Suniket – koncerty, akce a zákulisí české hardrockové kapely." />
+                <meta property="og:title" content="Suniket | Fotogalerie" />
+                <meta property="og:description" content="Fotogalerie kapely Suniket – koncerty, akce a zákulisí české hardrockové kapely." />
+                <meta property="og:url" content="https://suniket.cz/galerie/foto" />
+                <meta name="twitter:title" content="Suniket | Fotogalerie" />
+                <meta name="twitter:description" content="Fotogalerie kapely Suniket – koncerty, akce a zákulisí české hardrockové kapely." />
+                <link rel="canonical" href="https://suniket.cz/galerie/foto" />
+            </Helmet>
+            <section className="py-16 max-w-screen-xl mx-auto px-4">
             <h2 className="text-4xl font-bold text-center text-red-sun mb-12">Fotogalerie</h2>
 
+            {photos.length === 0 ? (
+                <p className="text-white/60 text-lg text-center">Žádné fotky</p>
+            ) : (
             <LightGallery
                 speed={500}
                 plugins={[lgThumbnail, lgZoom]}
@@ -37,7 +52,9 @@ function Photos() {
                     </a>
                 ))}
             </LightGallery>
-        </section>
+            )}
+            </section>
+        </>
     );
 }
 

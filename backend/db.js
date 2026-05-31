@@ -63,11 +63,14 @@ export async function initDb() {
     key TEXT PRIMARY KEY, value TEXT NOT NULL
   );`);
 
+
   for (const t of ["timeline", "concerts", "albums", "songs", "lyrics", "news", "photos", "videos", "members"]) {
     try { db.run(`ALTER TABLE ${t} ADD COLUMN sort_order INTEGER DEFAULT 0`); } catch (_) {}
   }
   try { db.run("ALTER TABLE members ADD COLUMN description TEXT"); } catch (_) {}
   try { db.run("ALTER TABLE members ADD COLUMN equipment TEXT"); } catch (_) {}
+  try { db.run("ALTER TABLE albums ADD COLUMN link_text TEXT"); } catch (_) {}
+  try { db.run("ALTER TABLE albums ADD COLUMN link TEXT"); } catch (_) {}
 
   return db;
 }

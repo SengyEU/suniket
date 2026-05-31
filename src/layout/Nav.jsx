@@ -97,8 +97,8 @@ export default function Nav() {
 
                     {/* Kapela dropdown */}
                     <div className="relative inline-block group hover:cursor-pointer">
-                        <a
-                            className={`text-xl no-underline transition-colors duration-300 cursor-pointer ${
+                        <a style={{ cursor: "pointer" }}
+                            className={`text-xl transition-colors duration-300 ${
                                 isBandActive ? "text-red-sun" : "text-white-sun hover:text-red-sun"
                             }`}
                         >
@@ -128,8 +128,8 @@ export default function Nav() {
 
                     {/* Galerie dropdown hned za Merchem */}
                     <div className="relative inline-block group hover:cursor-pointer">
-                        <a
-                            className={`text-xl no-underline transition-colors duration-300 cursor-pointer ${
+                        <a style={{ cursor: "pointer" }}
+                            className={`text-xl transition-colors duration-300 ${
                                 isGalleryActive ? "text-red-sun" : "text-white-sun hover:text-red-sun"
                             }`}
                         >
@@ -186,8 +186,8 @@ export default function Nav() {
                                 setGalleryOpen(false);
                                 setBandOpen(!bandOpen);
                             }}
-                            className={`w-full text-xl transition-colors duration-300 ${
-                                isBandActive ? "text-red-sun" : "text-white-sun hover:text-red-sun hover:cursor-pointer"
+                            className={`w-full text-xl transition-colors duration-300 cursor-pointer ${
+                                isBandActive ? "text-red-sun" : "text-white-sun hover:text-red-sun"
                             }`}
                         >
                             Kapela <FontAwesomeIcon icon={faUsers} />
@@ -225,8 +225,8 @@ export default function Nav() {
                                 setBandOpen(false);
                                 setGalleryOpen(!galleryOpen);
                             }}
-                            className={`w-full text-xl text-lefttransition-colors duration-300 ${
-                                isGalleryActive ? "text-red-sun" : "text-white-sun hover:text-red-sun hover:cursor-pointer"
+                            className={`w-full text-xl text-left transition-colors duration-300 cursor-pointer ${
+                                isGalleryActive ? "text-red-sun" : "text-white-sun hover:text-red-sun"
                             }`}
                         >
                             Galerie <FontAwesomeIcon icon={faImage} />

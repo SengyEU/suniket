@@ -25,6 +25,8 @@ async function uploadFile(file) {
   } catch { return null; }
 }
 
+function esc(s) { return String(s).replace(/[<>&"']/g, (c) => ({ "<":"&lt;", ">":"&gt;", "&":"&amp;", '"':"&quot;", "'":"&#39;" })[c]); }
+
 let sortDirs = {};
 
 async function initSortDirs() {
@@ -67,7 +69,7 @@ async function route() {
   const hash = location.hash || "#/dashboard";
   if (!token && hash !== "#/login") { location.hash = "#/login"; return; }
   if (hash !== "#/login") await initSortDirs();
-  const m = { "#/login": renderLogin, "#/dashboard": renderDashboard, "#/timeline": () => renderTimeline(), "#/concerts": () => renderConcerts(), "#/albums": () => renderAlbums(),     "#/news": () => renderNews(),     "#/members": () => renderMembers(),     "#/photos": () => renderPhotos(), "#/videos": () => renderTable("videos") };
+  const m = { "#/login": renderLogin, "#/dashboard": renderDashboard, "#/timeline": () => renderTimeline(), "#/concerts": () => renderConcerts(), "#/albums": () => renderAlbums(),     "#/news": () => renderNews(),     "#/members": () => renderMembers(),     "#/photos": () => renderPhotos(), "#/videos": () => renderTable("videos"), "#/contact": renderContactSettings };
   (m[hash] || renderDashboard)();
 }
 
@@ -103,6 +105,7 @@ function shell(content) {
     ["👤", "Členové", "#/members"],
     ["📷", "Fotky", "#/photos"],
     ["🎬", "Videa", "#/videos"],
+    ["📞", "Kontakt", "#/contact"],
   ];
   const hash = location.hash;
   return `<div class="app"><div class="sidebar"><h2><a href="#/dashboard">Suniket</a></h2><nav>${pages.map(([icon, label, h]) => `<a href="${h}" class="${hash === h ? "active" : ""}"><span class="icon">${icon}</span><span>${label}</span></a>`).join("")}</nav><button class="logout" onclick="logout()">🚪 Odhlásit</button></div><div class="main">${content}</div></div>`;
@@ -125,6 +128,67 @@ async function renderDashboard() {
     <div class="stat-card"><div class="num">${(photos||[]).length}</div><div class="label">Fotky</div></div>
     <div class="stat-card"><div class="num">${(videos||[]).length}</div><div class="label">Videa</div></div>
   </div>`);
+}
+
+/* ─── Contact Settings ─── */
+async function renderContactSettings() {
+  const data = await api("/contact-settings") || {};
+  const fields = [
+    ["contact_name", "Jméno", "text"],
+    ["contact_role", "Role", "text"],
+    ["contact_phone", "Telefon", "text"],
+    ["contact_email", "E-mail", "text"],
+    ["contact_email2", "E-mail 2", "text"],
+    ["contact_city", "Město", "text"],
+  ];
+  const dlFields = [
+    ["download_1_name", "Název stahování 1", "text"],
+    ["download_1_link", "Odkaz stahování 1", "url"],
+    ["download_2_name", "Název stahování 2", "text"],
+    ["download_2_link", "Odkaz stahování 2", "url"],
+    ["download_3_name", "Název stahování 3", "text"],
+    ["download_3_link", "Odkaz stahování 3", "url"],
+  ];
+  const vals = {};
+  for (const [k] of fields) vals[k] = data[k] || "";
+  for (const [k] of dlFields) vals[k] = data[k] || "";
+
+  document.getElementById("app").innerHTML = shell(`
+    <div class="table-wrap">
+      <div class="toolbar"><h2>Nastavení kontaktu</h2></div>
+      <div style="padding:20px">
+        <form id="contact-form">
+          <h3 style="font-size:15px;color:var(--accent);margin-bottom:16px;font-weight:600">Kontaktní údaje</h3>
+          ${fields.map(([k, label, type]) =>
+            `<div class="form-group"><label>${label}</label><input type="${type}" id="${k}" value="${esc(vals[k])}"></div>`
+          ).join("")}
+          <hr style="border:none;border-top:1px solid var(--border);margin:24px 0">
+          <h3 style="font-size:15px;color:var(--accent);margin-bottom:16px;font-weight:600">Ke stažení</h3>
+          ${dlFields.map(([k, label, type]) =>
+            `<div class="form-group"><label>${label}</label><input type="${type}" id="${k}" value="${esc(vals[k])}"></div>`
+          ).join("")}
+          <div style="display:flex;gap:8px;margin-top:24px">
+            <button type="submit" class="btn btn-primary" id="contactSaveBtn">Uložit</button>
+          </div>
+        </form>
+        <div id="contact-msg" style="margin-top:12px"></div>
+      </div>
+    </div>
+  `);
+  document.getElementById("contact-form").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("contactSaveBtn"); btn.disabled = true; btn.textContent = "Ukládám...";
+    const body = {};
+    for (const [k] of fields) body[k] = document.getElementById(k).value;
+    for (const [k] of dlFields) body[k] = document.getElementById(k).value;
+    const res = await api("/contact-settings", { method: "POST", body: JSON.stringify(body) });
+    btn.disabled = false; btn.textContent = "Uložit";
+    const msg = document.getElementById("contact-msg");
+    msg.innerHTML = res.success
+      ? '<p style="color:#2d6a4f;font-size:13px">✅ Nastavení uloženo</p>'
+      : '<p style="color:var(--accent);font-size:13px">❌ Chyba při ukládání</p>';
+    setTimeout(() => { msg.innerHTML = ""; }, 3000);
+  });
 }
 
 /* ─── Generic Table ─── */
@@ -169,7 +233,7 @@ window.openEdit = (section, id) => {
       e.preventDefault();
       const fd = new FormData(e.target);
       const body = {};
-      cfg.fields.forEach((f) => { const v = fd.get(f.key); if (v !== "") body[f.key] = f.type === "number" ? Number(v) : v; });
+      cfg.fields.forEach((f) => { const v = fd.get(f.key); body[f.key] = f.type === "number" ? Number(v) : v; });
       await api(`/${section}/${id}`, { method: "PUT", body: JSON.stringify(body) });
       closeModal(); toast("Uloženo"); renderTable(section);
     };
@@ -223,7 +287,7 @@ window.openConcertAdd = () => {
     const body = {};
     concertFields.forEach((f) => {
       if (f.type === "checkbox") body[f.key] = fd.has(f.key) ? 1 : 0;
-      else { const v = fd.get(f.key); if (v !== "") body[f.key] = f.type === "number" ? Number(v) : v; }
+      else { const v = fd.get(f.key); body[f.key] = f.type === "number" ? Number(v) : v; }
     });
     await api("/concerts", { method: "POST", body: JSON.stringify(body) });
     closeModal(); toast("Přidáno"); renderConcerts();
@@ -241,7 +305,7 @@ window.openConcertEdit = (id) => {
       const body = {};
       concertFields.forEach((f) => {
         if (f.type === "checkbox") body[f.key] = fd.has(f.key) ? 1 : 0;
-        else { const v = fd.get(f.key); if (v !== "") body[f.key] = f.type === "number" ? Number(v) : v; }
+        else { const v = fd.get(f.key); body[f.key] = f.type === "number" ? Number(v) : v; }
       });
       await api(`/concerts/${id}`, { method: "PUT", body: JSON.stringify(body) });
       closeModal(); toast("Uloženo"); renderConcerts();
@@ -274,6 +338,8 @@ async function renderAlbums() {
 const albumFields = [
   { key: "title", label: "Název alba", type: "text" },
   { key: "description", label: "Popis", type: "textarea" },
+  { key: "link_text", label: "Text odkazu (např. Bandzone, Spotify)", type: "text" },
+  { key: "link", label: "URL odkazu", type: "text" },
   { key: "sort_order", label: "Pořadí", type: "number" },
 ];
 
@@ -339,7 +405,7 @@ window.openAlbumEdit = (id) => {
       }
       window._ac = null;
       const body = {};
-      albumFields.forEach((f) => { const v = fd.get(f.key); if (v !== "") body[f.key] = f.type === "number" ? Number(v) : v; });
+      albumFields.forEach((f) => { const v = fd.get(f.key); body[f.key] = f.type === "number" ? Number(v) : v; });
       body.cover = cover;
       await api(`/albums/${id}`, { method: "PUT", body: JSON.stringify(body) });
       closeModal(); toast("Album uloženo"); renderAlbums();
@@ -596,7 +662,7 @@ window.openNewsEdit = (id) => {
       }
       window._ni = null;
       const body = {};
-      newsFields.forEach((f) => { const v = fd.get(f.key); if (v !== "") body[f.key] = f.type === "number" ? Number(v) : v; });
+      newsFields.forEach((f) => { const v = fd.get(f.key); body[f.key] = f.type === "number" ? Number(v) : v; });
       body.image = image;
       await api(`/news/${id}`, { method: "PUT", body: JSON.stringify(body) });
       closeModal(); toast("Uloženo"); renderNews();
@@ -771,7 +837,7 @@ window.openMemberEdit = (id) => {
       }
       window._mp = null;
       const body = {};
-      memberFields.forEach((f) => { const v = fd.get(f.key); if (v !== "") body[f.key] = f.type === "number" ? Number(v) : v; });
+      memberFields.forEach((f) => { const v = fd.get(f.key); body[f.key] = f.type === "number" ? Number(v) : v; });
       const eq = collectEquipment();
       if (eq) body.equipment = eq;
       body.photo = photo;

@@ -1,24 +1,38 @@
 import { faEnvelope, faExternalLink, faMapPin, faPhone, faUser } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
+import { fetchContactSettings } from "../api";
 
 export default function Contact() {
+    const [s, setS] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetchContactSettings().then((data) => { setS(data); setLoading(false); });
+    }, []);
+
+    if (loading) return null;
+
     const downloads = [
-        {
-            name: "Logo (svg/png)",
-            link: "https://drive.google.com/drive/folders/1d-FtEI1k7_nPoNKcHs3ZwBKgY5YOEy6d?usp=sharing",
-        },
-        {
-            name: "Promo foto",
-            link: "https://drive.google.com/drive/folders/1AvKllFwO2ejppHXCzgTTBWQTyfxs9Lad?usp=sharing",
-        },
-        {
-            name: "Stage plan (PDF)",
-            link: "https://drive.google.com/drive/folders/1b6iX9enWDLqzB9_j_AYsoFyZYKuGRjDY?usp=sharing",
-        },
-    ];
+        { name: s.download_1_name, link: s.download_1_link },
+        { name: s.download_2_name, link: s.download_2_link },
+        { name: s.download_3_name, link: s.download_3_link },
+    ].filter((d) => d.name && d.link);
 
     return (
-        <section className="relative py-16 max-w-[1152px] mx-auto px-5 text-center">
+        <>
+            <Helmet>
+                <title>Suniket | Kontakt</title>
+                <meta name="description" content="Kontakt na kapelu Suniket – rezervace koncertů, spolupráce a informace. Mobil: +420 731 737 384, email: kapela@suniket.cz." />
+                <meta property="og:title" content="Suniket | Kontakt" />
+                <meta property="og:description" content="Kontakt na kapelu Suniket – rezervace koncertů, spolupráce a informace. Mobil: +420 731 737 384, email: kapela@suniket.cz." />
+                <meta property="og:url" content="https://suniket.cz/kontakt" />
+                <meta name="twitter:title" content="Suniket | Kontakt" />
+                <meta name="twitter:description" content="Kontakt na kapelu Suniket – rezervace koncertů, spolupráce a informace. Mobil: +420 731 737 384, email: kapela@suniket.cz." />
+                <link rel="canonical" href="https://suniket.cz/kontakt" />
+            </Helmet>
+            <section className="relative py-16 max-w-[1152px] mx-auto px-5 text-center">
             <h2 className="text-4xl font-bold text-red-sun mb-16 relative z-10">Kontakt</h2>
 
             <div className="flex flex-col md:flex-row justify-center items-stretch gap-10">
@@ -31,27 +45,31 @@ export default function Contact() {
 
                     <div className="flex flex-col gap-3 text-white-sun">
                         <p>
-                            <FontAwesomeIcon icon={faUser} /> <span className="font-semibold">Marek Dudkovič</span>
+                            <FontAwesomeIcon icon={faUser} /> <span className="font-semibold">{s.contact_name}</span>
                         </p>
                         <p>
                             <FontAwesomeIcon icon={faEnvelope} /> <span className="font-semibold">E-mail:</span>{" "}
-                            <a href="mailto:kapela@suniket.cz" className="underline text-red-sun">
-                                kapela@suniket.cz
+                            <a href={`mailto:${s.contact_email}`} className="underline text-red-sun">
+                                {s.contact_email}
                             </a>
-                            {" / "}
-                            <a href="mailto:marekdud@seznam.cz" className="underline text-red-sun">
-                                marekdud@seznam.cz
-                            </a>
+                            {s.contact_email2 && (
+                                <>
+                                    {" / "}
+                                    <a href={`mailto:${s.contact_email2}`} className="underline text-red-sun">
+                                        {s.contact_email2}
+                                    </a>
+                                </>
+                            )}
                         </p>
                         <p>
                             <FontAwesomeIcon icon={faPhone} /> <span className="font-semibold">Telefon:</span>{" "}
-                            <a href="tel:+420731737384" className="underline text-red-sun">
-                                +420 731 737 384
+                            <a href={`tel:${s.contact_phone}`} className="underline text-red-sun">
+                                {s.contact_phone}
                             </a>
                         </p>
                         <p>
-                            <FontAwesomeIcon icon={faMapPin} /> <span className="font-semibold">Město:</span> Týnec nad
-                            Sázavou
+                            <FontAwesomeIcon icon={faMapPin} /> <span className="font-semibold">Město:</span>{" "}
+                            {s.contact_city || "Týnec nad Sázavou"}
                         </p>
                     </div>
                 </div>
@@ -81,5 +99,6 @@ export default function Contact() {
                 </div>
             </div>
         </section>
+        </>
     );
 }

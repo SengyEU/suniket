@@ -133,6 +133,9 @@ backend/*.log
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test
 
+# Deploy script
+deploy.bat
+
 # yarn v2
 .yarn/cache
 .yarn/unplugged

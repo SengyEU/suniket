@@ -1,6 +1,19 @@
+import { Helmet } from "react-helmet-async";
+
 export default function Home() {
     return (
-        <div className="flex items-center w-full justify-center relative text-center">
+        <>
+            <Helmet>
+                <title>Suniket | Domů</title>
+                <meta name="description" content="Oficiální web kapely Suniket z Týnce nad Sázavou – česká hardrocková kapela." />
+                <meta property="og:title" content="Suniket | Domů" />
+                <meta property="og:description" content="Oficiální web kapely Suniket z Týnce nad Sázavou – česká hardrocková kapela." />
+                <meta property="og:url" content="https://suniket.cz/" />
+                <meta name="twitter:title" content="Suniket | Domů" />
+                <meta name="twitter:description" content="Oficiální web kapely Suniket z Týnce nad Sázavou – česká hardrocková kapela." />
+                <link rel="canonical" href="https://suniket.cz/" />
+            </Helmet>
+            <div className="flex items-center w-full justify-center relative text-center">
             <div className="flex flex-col items-center relative gap-5 z-10">
                 <img
                     src="/img/logo.webp"
@@ -17,5 +30,6 @@ export default function Home() {
                 </button>
             </div>
         </div>
+        </>
     );
 }

@@ -40,3 +40,7 @@ export function fetchVideos() {
 export function fetchMembers() {
   return fetchJSON("/members");
 }
+
+export function fetchContactSettings() {
+  return fetchJSON("/contact-settings");
+}

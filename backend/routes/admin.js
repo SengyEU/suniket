@@ -112,13 +112,33 @@ function crud(table, fields) {
 
 const timelineFields = ["year", "text", "img", "alt", "sort_order"];
 const concertFields = ["is_upcoming", "date", "event", "link", "place", "time", "entry", "entry_has_link", "entry_price", "entry_link", "sort_order"];
-const albumFields = ["title", "cover", "description", "sort_order"];
+const albumFields = ["title", "cover", "description", "link_text", "link", "sort_order"];
 const songFields = ["album_id", "title", "sort_order"];
 const lyricFields = ["song_id", "line", "line_order", "sort_order"];
 const newsFields = ["date", "title", "description", "image", "link", "link_text", "sort_order"];
 const photoFields = ["src", "alt", "sort_order"];
 const videoFields = ["youtube_id", "sort_order"];
 const memberFields = ["name", "role", "photo", "description", "equipment", "sort_order"];
+
+const contactKeys = ["contact_name", "contact_role", "contact_phone", "contact_email", "contact_email2", "contact_city",
+  "download_1_name", "download_1_link", "download_2_name", "download_2_link", "download_3_name", "download_3_link"];
+
+router.get("/contact-settings", auth, (req, res) => {
+  const rows = db.all("SELECT * FROM settings WHERE key LIKE 'contact_%' OR key LIKE 'download_%'");
+  const out = {};
+  for (const k of contactKeys) out[k] = "";
+  for (const r of rows) out[r.key] = r.value;
+  res.json(out);
+});
+
+router.post("/contact-settings", auth, (req, res) => {
+  for (const k of contactKeys) {
+    if (req.body[k] !== undefined) {
+      db.run("INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)", [k, req.body[k]]);
+    }
+  }
+  res.json({ success: true });
+});
 
 router.use("/timeline", crud("timeline", timelineFields));
 router.use("/concerts", crud("concerts", concertFields));

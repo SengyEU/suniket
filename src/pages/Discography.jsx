@@ -1,6 +1,7 @@
 import { faExternalLink } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { fetchDiscography, assetUrl } from "../api";
 
 export default function Discography() {
@@ -20,9 +21,23 @@ export default function Discography() {
     };
 
     return (
-        <section className="relative py-16 max-w-[1152px] mx-auto px-5 text-center">
+        <>
+            <Helmet>
+                <title>Suniket | Diskografie</title>
+                <meta name="description" content="Diskografie kapely Suniket – alba, seznam písní a texty všech skladeb." />
+                <meta property="og:title" content="Suniket | Diskografie" />
+                <meta property="og:description" content="Diskografie kapely Suniket – alba, seznam písní a texty všech skladeb." />
+                <meta property="og:url" content="https://suniket.cz/diskografie" />
+                <meta name="twitter:title" content="Suniket | Diskografie" />
+                <meta name="twitter:description" content="Diskografie kapely Suniket – alba, seznam písní a texty všech skladeb." />
+                <link rel="canonical" href="https://suniket.cz/diskografie" />
+            </Helmet>
+            <section className="relative py-16 max-w-[1152px] mx-auto px-5 text-center">
             <h2 className="text-4xl font-bold text-red-sun mb-16 relative z-10">Diskografie</h2>
 
+            {albums.length === 0 ? (
+                <p className="text-white/60 text-lg">Žádná alba</p>
+            ) : (
             <div className="flex flex-col gap-20">
                 {albums.map((album, albumIndex) => (
                     <div
@@ -43,19 +58,23 @@ export default function Discography() {
                                 <h3 className="text-3xl font-semibold text-red-sun mb-3">{album.title}</h3>
                                 <p className="text-white/80 text-base sm:text-lg leading-relaxed">
                                     {album.description}
-                                    <br />
-                                    <span>
-                                        K poslechu na{" "}
-                                        <a
-                                            href="https://bandzone.cz/suniket"
-                                            target="_blank"
-                                            rel="noreferrer"
-                                            className="text-red-sun underline hover:text-red-dark-sun"
-                                        >
-                                            bandzone.cz/suniket
-                                            <FontAwesomeIcon icon={faExternalLink} className="ml-1" />
-                                        </a>
-                                    </span>
+                                    {album.link && (
+                                        <>
+                                            <br />
+                                            <span>
+                                                K poslechu na{" "}
+                                                <a
+                                                    href={album.link}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="text-red-sun underline hover:text-red-dark-sun"
+                                                >
+                                                    {album.link_text || "Odkaz"}
+                                                    <FontAwesomeIcon icon={faExternalLink} className="ml-1" />
+                                                </a>
+                                            </span>
+                                        </>
+                                    )}
                                 </p>
                             </div>
                         </div>
@@ -104,6 +123,8 @@ export default function Discography() {
                     </div>
                 ))}
             </div>
+            )}
         </section>
+        </>
     );
 }

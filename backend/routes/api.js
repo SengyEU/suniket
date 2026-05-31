@@ -61,6 +61,8 @@ router.get("/discography", (req, res) => {
       title: a.title,
       cover: a.cover,
       description: a.description,
+      link_text: a.link_text || null,
+      link: a.link || null,
       songs: songsByAlbum[a.id] || [],
     })),
   });
@@ -94,6 +96,13 @@ router.get("/videos", (req, res) => {
 router.get("/members", (req, res) => {
   const rows = db.all(`SELECT * FROM members ORDER BY sort_order ${sortDir(req, "members")}`);
   res.json(rows);
+});
+
+router.get("/contact-settings", (req, res) => {
+  const rows = db.all("SELECT * FROM settings WHERE key LIKE 'contact_%' OR key LIKE 'download_%'");
+  const out = {};
+  for (const r of rows) out[r.key] = r.value;
+  res.json(out);
 });
 
 export default router;

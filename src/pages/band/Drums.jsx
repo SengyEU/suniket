@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { Helmet } from "react-helmet-async";
 import { fetchMembers, assetUrl } from "../../api";
 import Template from "./Template";
 
@@ -13,5 +14,19 @@ export default function Drums() {
     }, []);
 
     if (!data) return null;
-    return <Template {...data} />;
+    return (
+        <>
+            <Helmet>
+                <title>Suniket | {data.name}</title>
+                <meta name="description" content={`${data.name} – ${data.instrument} kapely Suniket. ${data.description || ""}`} />
+                <meta property="og:title" content={`Suniket | ${data.name}`} />
+                <meta property="og:description" content={`${data.name} – ${data.instrument} kapely Suniket. ${data.description || ""}`} />
+                <meta property="og:url" content="https://suniket.cz/kapela/krystof-dolezel" />
+                <meta name="twitter:title" content={`Suniket | ${data.name}`} />
+                <meta name="twitter:description" content={`${data.name} – ${data.instrument} kapely Suniket. ${data.description || ""}`} />
+                <link rel="canonical" href="https://suniket.cz/kapela/krystof-dolezel" />
+            </Helmet>
+            <Template {...data} />
+        </>
+    );
 }
