@@ -673,9 +673,9 @@ window.openNewsEdit = (id) => {
 /* ─── Photos (with upload) ─── */
 async function renderPhotos() {
   const data = await api("/photos") || [];
-  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Fotky</h2><div class="toolbar-actions">${sortToggle("photos")}<button class="btn btn-primary" onclick="openPhotoAdd()">+ Přidat</button></div></div>
+  document.getElementById("app").innerHTML = shell(`<div class="table-wrap"><div class="toolbar"><h2>Fotky</h2><div class="toolbar-actions">${sortToggle("photos")}<button class="btn btn-sm btn-edit" onclick="openPhotoMassUpload()" style="border:1px solid var(--accent)">📥 Hromadné nahrávání</button><button class="btn btn-primary" onclick="openPhotoAdd()">+ Přidat</button></div></div>
     <table><thead><tr><th>Náhled</th><th>Cesta</th><th>Alt text</th><th></th></tr></thead>
-    <tbody>${data.length ? data.map((r) => `<tr><td><img src="${r.src}" alt="${r.alt}" style="width:60px;height:40px;object-fit:cover;border-radius:4px"></td><td>${(r.src||"").slice(0,30)}…</td><td>${r.alt||""}</td><td class="actions"><button class="btn btn-sm btn-edit" onclick="openPhotoEdit(${r.id})">✏️</button> <button class="btn btn-sm btn-del" onclick="delItem('photos',${r.id})">🗑️</button></td></tr>`).join("") : `<tr><td colspan="4" class="empty">Žádné fotky</td></tr>`}</tbody></table></div>`);
+    <tbody>${data.length ? data.map((r) => `<tr><td><img src="${r.thumb || r.src}" alt="${r.alt}" style="width:60px;height:40px;object-fit:cover;border-radius:4px"></td><td>${(r.src||"").slice(0,30)}…</td><td>${r.alt||""}</td><td class="actions"><button class="btn btn-sm btn-edit" onclick="openPhotoEdit(${r.id})">✏️</button> <button class="btn btn-sm btn-del" onclick="delItem('photos',${r.id})">🗑️</button></td></tr>`).join("") : `<tr><td colspan="4" class="empty">Žádné fotky</td></tr>`}</tbody></table></div>`);
 }
 
 window.openPhotoAdd = () => {
@@ -691,6 +691,33 @@ window.openPhotoAdd = () => {
     const body = { src: up.src, alt: fd.get("alt") || "", sort_order: Number(fd.get("sort_order") || 0) };
     await api("/photos", { method: "POST", body: JSON.stringify(body) });
     closeModal(); toast("Fotka přidána"); renderPhotos();
+  };
+};
+
+window.openPhotoMassUpload = () => {
+  modal(`<h2>Hromadné nahrávání fotek</h2><form id="massUploadForm"><div class="form-group"><label>Vyberte fotky (lze vybrat více najednou)</label><input type="file" name="files" multiple accept="image/*"></div><div class="form-group"><label>Alt text (platí pro všechny fotky)</label><input type="text" name="alt" value="" placeholder="nepovinné"></div><div id="massUploadProgress" style="margin-bottom:12px;font-size:13px"></div><div class="modal-actions"><button type="button" class="btn btn-cancel" onclick="closeModal()">Zrušit</button><button type="submit" class="btn btn-primary" id="massUploadBtn">Nahrát</button></div></form>`);
+  document.getElementById("massUploadForm").onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById("massUploadBtn");
+    const progress = document.getElementById("massUploadProgress");
+    const files = e.target.files.files;
+    if (!files || !files.length) { toast("Vyber soubory", "error"); return; }
+    btn.disabled = true; btn.textContent = "Nahrávám...";
+      let ok = 0, fail = 0;
+    for (let i = 0; i < files.length; i++) {
+      progress.innerHTML = `Nahrávám ${i + 1}/${files.length}...`;
+      const up = await uploadFile(files[i]);
+      if (up?.src) {
+        await api("/photos", { method: "POST", body: JSON.stringify({ src: up.src, alt: document.getElementById("massUploadForm").alt.value.trim() }) });
+        ok++;
+      } else {
+        fail++;
+      }
+    }
+    progress.innerHTML = ok ? `<span style="color:#2d6a4f">✅ Nahráno ${ok} fotek</span>` : "";
+    if (fail) progress.innerHTML += `<span style="color:var(--accent);margin-left:8px">❌ ${fail} selhalo</span>`;
+    btn.textContent = "Hotovo";
+    setTimeout(() => { closeModal(); renderPhotos(); }, 1500);
   };
 };
 
@@ -757,9 +784,10 @@ window.addEquipmentItem = () => {
 function collectEquipment() {
   const rows = document.querySelectorAll("#equipment-list .equipment-row");
   const items = [];
-  rows.forEach((r, i) => {
-    const name = r.querySelector(`[name="eq_name_${i}"]`)?.value?.trim();
-    if (name) items.push({ name, link: r.querySelector(`[name="eq_link_${i}"]`)?.value?.trim() || undefined });
+  rows.forEach((r) => {
+    const inputs = r.querySelectorAll("input");
+    const name = inputs[0]?.value?.trim();
+    if (name) items.push({ name, link: inputs[1]?.value?.trim() || undefined });
   });
   return items.length ? JSON.stringify(items) : null;
 }
@@ -800,7 +828,7 @@ window.openMemberAdd = () => {
     const body = {};
     memberFields.forEach((f) => { const v = fd.get(f.key); if (v) body[f.key] = f.type === "number" ? Number(v) : v; });
     const eq = collectEquipment();
-    if (eq) body.equipment = eq;
+    body.equipment = eq;
     if (photo) body.photo = photo;
     await api("/members", { method: "POST", body: JSON.stringify(body) });
     closeModal(); toast("Člen přidán"); renderMembers();
@@ -839,7 +867,7 @@ window.openMemberEdit = (id) => {
       const body = {};
       memberFields.forEach((f) => { const v = fd.get(f.key); body[f.key] = f.type === "number" ? Number(v) : v; });
       const eq = collectEquipment();
-      if (eq) body.equipment = eq;
+      body.equipment = eq;
       body.photo = photo;
       await api(`/members/${id}`, { method: "PUT", body: JSON.stringify(body) });
       closeModal(); toast("Člen uložen"); renderMembers();

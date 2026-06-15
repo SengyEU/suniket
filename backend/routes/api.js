@@ -85,12 +85,18 @@ router.get("/news", (req, res) => {
 
 router.get("/photos", (req, res) => {
   const rows = db.all(`SELECT * FROM photos ORDER BY sort_order ${sortDir(req, "photos")}`);
-  res.json(rows.map((r) => ({ src: r.src, alt: r.alt })));
+  res.json(rows.map((r) => ({ src: r.src, thumb: r.thumb || r.src, alt: r.alt })));
 });
+
+function youtubeId(val) {
+  if (!val) return "";
+  const m = val.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/);
+  return m ? m[1] : val.trim();
+}
 
 router.get("/videos", (req, res) => {
   const rows = db.all(`SELECT * FROM videos ORDER BY sort_order ${sortDir(req, "videos")}`);
-  res.json(rows.map((r) => r.youtube_id));
+  res.json(rows.map((r) => youtubeId(r.youtube_id)));
 });
 
 router.get("/members", (req, res) => {

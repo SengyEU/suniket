@@ -72,6 +72,8 @@ export async function initDb() {
   try { db.run("ALTER TABLE albums ADD COLUMN link_text TEXT"); } catch (_) {}
   try { db.run("ALTER TABLE albums ADD COLUMN link TEXT"); } catch (_) {}
 
+  try { db.run("ALTER TABLE photos ADD COLUMN thumb TEXT"); } catch (_) {}
+
   return db;
 }
 

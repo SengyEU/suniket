@@ -28,13 +28,54 @@ router.post("/login", (req, res) => {
   return res.status(401).json({ error: "Invalid password" });
 });
 
+function isWebP(buf) {
+  return buf[0] === 0x52 && buf[1] === 0x49 && buf[2] === 0x46 && buf[3] === 0x46 &&
+    buf[8] === 0x57 && buf[9] === 0x45 && buf[10] === 0x42 && buf[11] === 0x50;
+}
+
+async function saveImage(buf, uploadDir) {
+  const ext = ".webp";
+  const name = crypto.randomUUID() + ext;
+  const thumbName = "thumb_" + name;
+  const outPath = path.join(uploadDir, name);
+  const thumbPath = path.join(uploadDir, thumbName);
+  const meta = await sharp(buf).metadata();
+  const maxDim = 1920;
+  const resizeOpts = meta.width > maxDim ? { width: maxDim } : {};
+  if (isWebP(buf)) {
+    await sharp(buf).resize(resizeOpts).webp({ quality: 50 }).toFile(outPath);
+  } else {
+    await sharp(buf).resize(resizeOpts).webp({ quality: 50 }).toFile(outPath);
+  }
+  if (meta.width > 400) {
+    await sharp(buf).resize({ width: 400 }).webp({ quality: 60 }).toFile(thumbPath);
+  } else {
+    await sharp(buf).webp({ quality: 60 }).toFile(thumbPath);
+  }
+  return { src: "/uploads/photos/" + name, thumb: "/uploads/photos/" + thumbName };
+}
+
 router.post("/upload", auth, upload.single("file"), async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ error: "No file uploaded" });
-    const name = crypto.randomUUID() + ".webp";
-    const outPath = path.join(uploadDir, name);
-    await sharp(req.file.buffer).webp({ quality: 85 }).toFile(outPath);
-    res.json({ src: "/uploads/photos/" + name });
+    const result = await saveImage(req.file.buffer, uploadDir);
+    res.json(result);
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+router.post("/photos/upload-multiple", auth, upload.array("files", 50), async (req, res) => {
+  try {
+    if (!req.files || !req.files.length) return res.status(400).json({ error: "No files uploaded" });
+    const results = [];
+    for (const file of req.files) {
+      const { src, thumb } = await saveImage(file.buffer, uploadDir);
+      const row = db.one("SELECT COALESCE(MAX(sort_order), 0) + 1 as next FROM photos");
+      const info = db.run("INSERT INTO photos (src, thumb, alt, sort_order) VALUES (?, ?, ?, ?)", [src, thumb, "", row.next]);
+      results.push({ id: info.lastInsertRowid, src, thumb });
+    }
+    res.json({ success: true, count: results.length, photos: results });
   } catch (e) {
     res.status(500).json({ error: e.message });
   }
@@ -116,7 +157,7 @@ const albumFields = ["title", "cover", "description", "link_text", "link", "sort
 const songFields = ["album_id", "title", "sort_order"];
 const lyricFields = ["song_id", "line", "line_order", "sort_order"];
 const newsFields = ["date", "title", "description", "image", "link", "link_text", "sort_order"];
-const photoFields = ["src", "alt", "sort_order"];
+const photoFields = ["src", "thumb", "alt", "sort_order"];
 const videoFields = ["youtube_id", "sort_order"];
 const memberFields = ["name", "role", "photo", "description", "equipment", "sort_order"];
 
