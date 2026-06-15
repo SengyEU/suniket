@@ -32,10 +32,9 @@ export default function Template({ name, instrument, description, photo, gear })
                                             href={item.link}
                                             target="_blank"
                                             rel="noopener noreferrer"
-                                            className="text-white/80 hover:text-red-sun underline transition-colors"
+                                            className="text-white/80 hover:text-red-sun underline transition-colors break-normal"
                                         >
-                                            {item.name}
-                                            <FontAwesomeIcon icon={faExternalLink} className="ml-1 text-red-sun" />
+                                            {item.name}<span className="whitespace-nowrap">{'\u00A0'}<FontAwesomeIcon icon={faExternalLink} className="text-red-sun" style={{"--fa-display":"inline"}} /></span>
                                         </a>
                                     ) : (
                                         <span className="text-white/80">{item.name}</span>

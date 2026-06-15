@@ -58,10 +58,9 @@ export default function News() {
                                     href={item.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-red-sun underline font-medium"
+                                    className="text-red-sun underline font-medium break-normal"
                                 >
-                                    {item.linkText || "Otevřít odkaz"}
-                                    <FontAwesomeIcon icon={faExternalLink} className="ml-1" />
+                                    {item.linkText || "Otevřít odkaz"}<span className="whitespace-nowrap">{'\u00A0'}<FontAwesomeIcon icon={faExternalLink} style={{"--fa-display":"inline"}} /></span>
                                 </a>
                             )}
                         </div>

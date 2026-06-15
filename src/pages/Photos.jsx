@@ -17,7 +17,7 @@ function Photos() {
         fetchPhotos().then((data) => { setPhotos(data); setLoading(false); });
     }, []);
 
-    if (loading) return null;
+    if (loading) return <section className="py-16 max-w-screen-xl mx-auto px-4"><p className="text-white/60 text-lg text-center">Načítám fotogalerii...</p></section>;
 
     return (
         <>
@@ -41,13 +41,16 @@ function Photos() {
                 speed={500}
                 plugins={[lgThumbnail, lgZoom]}
                 elementClassNames="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6"
+                preload={2}
+                loadPreviousNext={false}
             >
                 {photos.map((photo, i) => (
-                    <a key={i} href={assetUrl(photo.src)}>
+                    <a key={i} data-lg-type="image" href={assetUrl(photo.src)} className="block aspect-[4/3] overflow-hidden rounded-lg shadow-lg bg-white/5">
                         <img
-                            src={assetUrl(photo.src)}
+                            src={assetUrl(photo.thumb)}
                             alt={photo.alt}
-                            className="w-full h-64 object-cover rounded-lg shadow-lg cursor-pointer transition-transform duration-300 hover:scale-105"
+                            loading="lazy"
+                            className="w-full h-full object-cover cursor-pointer transition-transform duration-300 hover:scale-105"
                         />
                     </a>
                 ))}

@@ -88,10 +88,9 @@ export default function Contact() {
                                     href={item.link}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-red-sun font-semibold underline"
+                                    className="text-red-sun font-semibold underline break-normal"
                                 >
-                                    {item.name}
-                                    <FontAwesomeIcon icon={faExternalLink} className="ml-1" />
+                                    {item.name}<span className="whitespace-nowrap">{'\u00A0'}<FontAwesomeIcon icon={faExternalLink} style={{"--fa-display":"inline"}} /></span>
                                 </a>
                             </li>
                         ))}

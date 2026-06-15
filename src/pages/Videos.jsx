@@ -7,10 +7,10 @@ function Videos() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetchVideos().then((data) => { setVideos(data); setLoading(false); });
+        fetchVideos().then((data) => { setVideos(Array.isArray(data) ? data.filter(Boolean) : []); setLoading(false); }).catch(() => setLoading(false));
     }, []);
 
-    if (loading) return null;
+    if (loading) return <section className="py-16 max-w-screen-xl mx-auto px-4"><p className="text-white/60 text-lg text-center">Načítám videa...</p></section>;
 
     return (
         <>
@@ -31,14 +31,15 @@ function Videos() {
                 <p className="text-white/60 text-lg text-center">Žádná videa</p>
             ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-                {videos.map((video, i) => (
+                {videos.map((id, i) => (
                     <div key={i} className="w-full h-80 aspect-video rounded-lg overflow-hidden shadow-lg">
                         <iframe
-                            src={`https://www.youtube.com/embed/${video}`}
+                            src={`https://www.youtube.com/embed/${id}?origin=https://suniket.cz`}
                             title={`YouTube video ${i + 1}`}
                             className="w-full h-full"
                             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                             allowFullScreen
+                            referrerPolicy="strict-origin-when-cross-origin"
                         />
                     </div>
                 ))}

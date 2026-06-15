@@ -25,9 +25,9 @@ export default function Home() {
                     <p>Hard rock-heavy / Týnec nad Sázavou</p>
                 </div>
 
-                <button className="cursor-pointer text-base rounded-[5rem] transition-all ease-in-out duration-300 border border-transparent border-solid tracking-[2px] font-bold text-center text-white-sun bg-red-sun h-10 w-52 sm:h-12 sm:w-64 hover:scale-[1.05] hover:bg-red-dark-sun">
+                <a href="https://www.youtube.com/@kapela.suniket" target="_blank" rel="noopener noreferrer" className="inline-flex items-center justify-center cursor-pointer text-base rounded-[5rem] transition-all ease-in-out duration-300 border border-transparent border-solid tracking-[2px] font-bold text-center text-white-sun bg-red-sun h-10 w-52 sm:h-12 sm:w-64 hover:scale-[1.05] hover:bg-red-dark-sun">
                     POSLECHNOUT
-                </button>
+                </a>
             </div>
         </div>
         </>

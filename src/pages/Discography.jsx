@@ -67,10 +67,9 @@ export default function Discography() {
                                                     href={album.link}
                                                     target="_blank"
                                                     rel="noreferrer"
-                                                    className="text-red-sun underline hover:text-red-dark-sun"
+                                                    className="text-red-sun underline hover:text-red-dark-sun break-normal"
                                                 >
-                                                    {album.link_text || "Odkaz"}
-                                                    <FontAwesomeIcon icon={faExternalLink} className="ml-1" />
+                                                    {album.link_text || "Odkaz"}<span className="whitespace-nowrap">{'\u00A0'}<FontAwesomeIcon icon={faExternalLink} style={{"--fa-display":"inline"}} /></span>
                                                 </a>
                                             </span>
                                         </>

@@ -17,7 +17,7 @@ import {
     faBars,
     faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import { faFacebook, faInstagram, faSpotify, faTiktok, faYoutube } from "@fortawesome/free-brands-svg-icons";
+import { faFacebook, faInstagram, faTiktok, faYoutube } from "@fortawesome/free-brands-svg-icons";
 import { useEffect, useState } from "react";
 
 const bandMembers = [
@@ -55,7 +55,14 @@ const NavLinkItem = ({ name, path, icon }) => (
     </NavLink>
 );
 
-const socialIcons = [faInstagram, faSpotify, faTiktok, faYoutube, faFacebook];
+const socialIcons = [faInstagram, faTiktok, faYoutube, faFacebook];
+
+const socialUrls = {
+    instagram: "https://www.instagram.com/kapela.suniket/",
+    tiktok: "https://www.tiktok.com/@kapela.suniket",
+    youtube: "https://www.youtube.com/@kapela.suniket",
+    facebook: "https://www.facebook.com/kapela.suniket",
+};
 
 export default function Nav() {
     const location = useLocation();
@@ -159,12 +166,13 @@ export default function Nav() {
                 </div>
 
                 <div className="hidden 2xl:flex gap-5 text-xl px-4">
-                    {socialIcons.map((icon) => (
-                        <FontAwesomeIcon
-                            key={icon.iconName}
-                            icon={icon}
-                            className="text-white-sun no-underline text-xl transition-colors duration-300 hover:text-red-sun"
-                        />
+                    {socialIcons.filter((icon) => socialUrls[icon.iconName]).map((icon) => (
+                        <a key={icon.iconName} href={socialUrls[icon.iconName]} target="_blank" rel="noopener noreferrer">
+                            <FontAwesomeIcon
+                                icon={icon}
+                                className="text-white-sun no-underline text-xl transition-colors duration-300 hover:text-red-sun"
+                            />
+                        </a>
                     ))}
                 </div>
             </nav>
@@ -259,12 +267,13 @@ export default function Nav() {
                 </div>
 
                 <div className="flex 2xl:hidden gap-5 pt-4 text-xl px-4 justify-center">
-                    {socialIcons.map((icon) => (
-                        <FontAwesomeIcon
-                            key={icon.iconName}
-                            icon={icon}
-                            className="text-white-sun no-underline text-xl transition-colors duration-300 hover:text-red-sun"
-                        />
+                    {socialIcons.filter((icon) => socialUrls[icon.iconName]).map((icon) => (
+                        <a key={icon.iconName} href={socialUrls[icon.iconName]} target="_blank" rel="noopener noreferrer">
+                            <FontAwesomeIcon
+                                icon={icon}
+                                className="text-white-sun no-underline text-xl transition-colors duration-300 hover:text-red-sun"
+                            />
+                        </a>
                     ))}
                 </div>
             </nav>
