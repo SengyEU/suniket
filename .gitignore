@@ -41,6 +41,7 @@ build/Release
 # Dependency directories
 node_modules/
 backend/node_modules/
+backend/admin-spa/node_modules/
 jspm_packages/
 
 # Snowpack dependency directory (https://snowpack.dev/)
@@ -129,6 +130,8 @@ dist
 # Backend
 backend/data/
 backend/*.log
+
+backend/dist/
 
 # Stores VSCode versions used for testing VSCode extensions
 .vscode-test

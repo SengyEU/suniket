@@ -44,3 +44,12 @@ export function fetchMembers() {
 export function fetchContactSettings() {
   return fetchJSON("/contact-settings");
 }
+
+export async function fetchLatestVideo() {
+  const res = await fetch(`${BASE}/latest-video`);
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`${res.status} ${text.slice(0, 200)}`);
+  }
+  return res.json();
+}
