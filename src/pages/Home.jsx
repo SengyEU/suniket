@@ -5,19 +5,27 @@ export default function Home() {
         <>
             <Helmet>
                 <title>Suniket | Domů</title>
-                <meta name="description" content="Oficiální web kapely Suniket z Týnce nad Sázavou – česká hardrocková kapela." />
+                <meta name="description" content="Suniket je česká hardrocková kapela z Týnce nad Sázavou, založená v roce 2024. Pět členů, koncerty po celé ČR, originální tvrdá hudba. Poslechněte si na YouTube." />
                 <meta property="og:title" content="Suniket | Domů" />
-                <meta property="og:description" content="Oficiální web kapely Suniket z Týnce nad Sázavou – česká hardrocková kapela." />
+                <meta property="og:description" content="Oficiální web kapely Suniket z Týnce nad Sázavou – česká hardrocková kapela. Koncerty, diskografie, fotogalerie a videa." />
+                <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://suniket.cz/" />
+                <meta property="og:image" content="https://suniket.cz/img/og-image.jpg" />
+                <meta property="og:locale" content="cs_CZ" />
+                <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="Suniket | Domů" />
                 <meta name="twitter:description" content="Oficiální web kapely Suniket z Týnce nad Sázavou – česká hardrocková kapela." />
+                <meta name="twitter:image" content="https://suniket.cz/img/og-image.jpg" />
                 <link rel="canonical" href="https://suniket.cz/" />
             </Helmet>
-            <div className="flex items-center w-full justify-center relative text-center">
+            <div className="flex items-center w-full justify-center relative text-center flex-1">
             <div className="flex flex-col items-center relative gap-5 z-10">
                 <img
                     src="/img/logo.webp"
-                    alt="logo"
+                    alt="Suniket logo – česká hardrocková kapela"
+                    width="240"
+                    height="80"
+                    fetchpriority="high"
                     className="w-40 sm:w-60 h-auto block z-10 [animation:pulseScale_2.5s_infinite_ease-in-out_alternate]"
                 />
 

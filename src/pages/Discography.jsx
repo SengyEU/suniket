@@ -3,17 +3,23 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { fetchDiscography, assetUrl } from "../api";
+import Spinner from "../components/Spinner.jsx";
+import BreadcrumbJsonLd from "../components/BreadcrumbJsonLd.jsx";
 
 export default function Discography() {
     const [albums, setAlbums] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
     const [openSong, setOpenSong] = useState(null);
 
     useEffect(() => {
-        fetchDiscography().then((data) => { setAlbums(data.albums); setLoading(false); });
+        fetchDiscography()
+            .then((data) => { setAlbums(data.albums); setLoading(false); })
+            .catch((e) => { setError(e.message); setLoading(false); });
     }, []);
 
-    if (loading) return null;
+    if (loading) return <Spinner />;
+    if (error) return <section className="py-16 max-w-screen-xl mx-auto px-4"><p className="text-red-sun text-lg text-center">Chyba načítání: {error}</p></section>;
 
     const toggleLyrics = (albumIndex, songIndex) => {
         const key = `${albumIndex}-${songIndex}`;
@@ -24,14 +30,20 @@ export default function Discography() {
         <>
             <Helmet>
                 <title>Suniket | Diskografie</title>
-                <meta name="description" content="Diskografie kapely Suniket – alba, seznam písní a texty všech skladeb." />
+                <meta name="description" content="Diskografie kapely Suniket – alba, singly, seznam písní s texty. Česká hardrocková kapela, kompletní přehled vydané hudby." />
                 <meta property="og:title" content="Suniket | Diskografie" />
                 <meta property="og:description" content="Diskografie kapely Suniket – alba, seznam písní a texty všech skladeb." />
+                <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://suniket.cz/diskografie" />
+                <meta property="og:image" content="https://suniket.cz/img/og-image.jpg" />
+                <meta property="og:locale" content="cs_CZ" />
+                <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="Suniket | Diskografie" />
                 <meta name="twitter:description" content="Diskografie kapely Suniket – alba, seznam písní a texty všech skladeb." />
+                <meta name="twitter:image" content="https://suniket.cz/img/og-image.jpg" />
                 <link rel="canonical" href="https://suniket.cz/diskografie" />
             </Helmet>
+            <BreadcrumbJsonLd items={[{ name: "Domů", path: "/" }, { name: "Diskografie", path: "/diskografie" }]} />
             <section className="relative py-16 max-w-[1152px] mx-auto px-5 text-center">
             <h2 className="text-4xl font-bold text-red-sun mb-16 relative z-10">Diskografie</h2>
 
@@ -50,6 +62,8 @@ export default function Discography() {
                                 <img
                                     src={assetUrl(album.cover)}
                                     alt={album.title}
+                                    loading="lazy"
+                                    decoding="async"
                                     className="w-full h-auto object-cover rounded-2xl transition-transform duration-500 hover:rotate-45"
                                 />
                             </div>

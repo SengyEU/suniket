@@ -12,10 +12,14 @@ function Layout() {
             <Helmet>
                 <meta property="og:type" content="website" />
                 <meta property="og:image" content="https://suniket.cz/img/og-image.jpg" />
+                <meta property="og:locale" content="cs_CZ" />
                 <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:image" content="https://suniket.cz/img/og-image.jpg" />
             </Helmet>
             <div className="relative min-h-dvh flex flex-col text-white-sun">
+            <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-black focus:text-white focus:rounded">
+                Přeskočit na obsah
+            </a>
             <div
                 className={`absolute top-0 left-0 right-0 bottom-0 ${isHome ? "" : "bg-black-sun"}`}
                 style={{
@@ -28,8 +32,10 @@ function Layout() {
             </div>
 
             <Nav />
-            <main className="flex-1 flex relative z-10">
-                <Outlet />
+            <main id="main-content" className="flex-1 flex relative z-10">
+                    <div key={location.key} className="w-full flex flex-col flex-1 animate-[fadeIn_0.4s_ease-out]">
+                    <Outlet />
+                </div>
             </main>
             <Footer />
         </div>

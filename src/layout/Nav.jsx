@@ -17,8 +17,8 @@ import {
     faBars,
     faXmark,
 } from "@fortawesome/free-solid-svg-icons";
-import { faFacebook, faInstagram, faTiktok, faYoutube } from "@fortawesome/free-brands-svg-icons";
 import { useEffect, useState } from "react";
+import { SOCIAL_URLS, SOCIAL_LABELS, SOCIAL_ICONS } from "../data";
 
 const bandMembers = [
     { name: "Victor Hrazdil", icon: faMicrophone, path: "/kapela/victor-hrazdil" },
@@ -55,15 +55,6 @@ const NavLinkItem = ({ name, path, icon }) => (
     </NavLink>
 );
 
-const socialIcons = [faInstagram, faTiktok, faYoutube, faFacebook];
-
-const socialUrls = {
-    instagram: "https://www.instagram.com/kapela.suniket/",
-    tiktok: "https://www.tiktok.com/@kapela.suniket",
-    youtube: "https://www.youtube.com/@kapela.suniket",
-    facebook: "https://www.facebook.com/kapela.suniket",
-};
-
 export default function Nav() {
     const location = useLocation();
     const [menuOpen, setMenuOpen] = useState(false);
@@ -82,10 +73,11 @@ export default function Nav() {
         <div className="relative z-30">
             <nav className="flex justify-between items-center bg-[rgba(0,0,0,0.7)] px-6 py-6 z-20 border-b-2 border-solid border-red-sun">
                 <NavLink to="/">
-                    <img src="/img/text.webp" alt="Logo" className="w-56 px-4 h-auto relative block z-10" />
+                    <img src="/img/text.webp" alt="Suniket" width="224" height="40" className="w-56 px-4 h-auto relative block z-10" />
                 </NavLink>
 
                 <button
+                    aria-label={menuOpen ? "Zavřít menu" : "Otevřít menu"}
                     className="block 2xl:hidden text-white-sun text-2xl"
                     onClick={() => {
                         setBandOpen(false);
@@ -103,15 +95,15 @@ export default function Nav() {
                     ))}
 
                     {/* Kapela dropdown */}
-                    <div className="relative inline-block group hover:cursor-pointer">
-                        <a style={{ cursor: "pointer" }}
-                            className={`text-xl transition-colors duration-300 ${
+                    <div className="relative inline-block group">
+                        <button type="button" aria-haspopup="true"
+                            className={`bg-transparent border-none cursor-pointer text-xl transition-colors duration-300 ${
                                 isBandActive ? "text-red-sun" : "text-white-sun hover:text-red-sun"
                             }`}
                         >
                             Kapela <FontAwesomeIcon icon={faUsers} />
-                        </a>
-                        <div className="block opacity-0 transform [scale-y:0] absolute origin-top transition-all duration-250 ease-[ease] bg-[rgba(0,0,0,0.7)] min-w-[220px] shadow-lg z-10 pointer-events-none group-hover:scale-y-[1] group-hover:opacity-100 group-hover:pointer-events-auto">
+                        </button>
+                        <div className="block opacity-0 transform [scale-y:0] absolute origin-top transition-all duration-250 ease-[ease] bg-[rgba(0,0,0,0.7)] min-w-[220px] shadow-lg z-10 pointer-events-none group-hover:scale-y-[1] group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:scale-y-[1] group-focus-within:opacity-100 group-focus-within:pointer-events-auto">
                             {bandMembers.map((member) => (
                                 <NavLink
                                     key={member.path}
@@ -134,15 +126,15 @@ export default function Nav() {
                     ))}
 
                     {/* Galerie dropdown hned za Merchem */}
-                    <div className="relative inline-block group hover:cursor-pointer">
-                        <a style={{ cursor: "pointer" }}
-                            className={`text-xl transition-colors duration-300 ${
+                    <div className="relative inline-block group">
+                        <button type="button" aria-haspopup="true"
+                            className={`bg-transparent border-none cursor-pointer text-xl transition-colors duration-300 ${
                                 isGalleryActive ? "text-red-sun" : "text-white-sun hover:text-red-sun"
                             }`}
                         >
                             Galerie <FontAwesomeIcon icon={faImage} />
-                        </a>
-                        <div className="block opacity-0 transform [scale-y:0] absolute origin-top transition-all duration-250 ease-[ease] bg-[rgba(0,0,0,0.7)] min-w-[220px] shadow-lg z-10 pointer-events-none group-hover:scale-y-[1] group-hover:opacity-100 group-hover:pointer-events-auto">
+                        </button>
+                        <div className="block opacity-0 transform [scale-y:0] absolute origin-top transition-all duration-250 ease-[ease] bg-[rgba(0,0,0,0.7)] min-w-[220px] shadow-lg z-10 pointer-events-none group-hover:scale-y-[1] group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:scale-y-[1] group-focus-within:opacity-100 group-focus-within:pointer-events-auto">
                             {galleryItems.map((item) => (
                                 <NavLink
                                     key={item.path}
@@ -166,8 +158,8 @@ export default function Nav() {
                 </div>
 
                 <div className="hidden 2xl:flex gap-5 text-xl px-4">
-                    {socialIcons.filter((icon) => socialUrls[icon.iconName]).map((icon) => (
-                        <a key={icon.iconName} href={socialUrls[icon.iconName]} target="_blank" rel="noopener noreferrer">
+                    {SOCIAL_ICONS.filter((icon) => SOCIAL_URLS[icon.iconName]).map((icon) => (
+                        <a key={icon.iconName} href={SOCIAL_URLS[icon.iconName]} target="_blank" rel="noopener noreferrer me" aria-label={SOCIAL_LABELS[icon.iconName]}>
                             <FontAwesomeIcon
                                 icon={icon}
                                 className="text-white-sun no-underline text-xl transition-colors duration-300 hover:text-red-sun"
@@ -267,8 +259,8 @@ export default function Nav() {
                 </div>
 
                 <div className="flex 2xl:hidden gap-5 pt-4 text-xl px-4 justify-center">
-                    {socialIcons.filter((icon) => socialUrls[icon.iconName]).map((icon) => (
-                        <a key={icon.iconName} href={socialUrls[icon.iconName]} target="_blank" rel="noopener noreferrer">
+                    {SOCIAL_ICONS.filter((icon) => SOCIAL_URLS[icon.iconName]).map((icon) => (
+                        <a key={icon.iconName} href={SOCIAL_URLS[icon.iconName]} target="_blank" rel="noopener noreferrer me" aria-label={SOCIAL_LABELS[icon.iconName]}>
                             <FontAwesomeIcon
                                 icon={icon}
                                 className="text-white-sun no-underline text-xl transition-colors duration-300 hover:text-red-sun"

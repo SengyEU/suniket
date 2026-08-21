@@ -1,32 +1,41 @@
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { fetchTimeline, assetUrl } from "../api";
+import Spinner from "../components/Spinner.jsx";
+import BreadcrumbJsonLd from "../components/BreadcrumbJsonLd.jsx";
 
 function About() {
     const [timeline, setTimeline] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetchTimeline().then((t) => {
-            setTimeline(t);
-            setLoading(false);
-        });
+        fetchTimeline()
+            .then((t) => { setTimeline(t); setLoading(false); })
+            .catch((e) => { setError(e.message); setLoading(false); });
     }, []);
 
-    if (loading) return null;
+    if (loading) return <Spinner />;
+    if (error) return <section className="py-16 max-w-screen-xl mx-auto px-4"><p className="text-red-sun text-lg text-center">Chyba načítání: {error}</p></section>;
 
     return (
         <>
             <Helmet>
                 <title>Suniket | O kapele</title>
-                <meta name="description" content="Historie a příběh české hardrockové kapely Suniket z Týnce nad Sázavou." />
+                <meta name="description" content="Historie kapely Suniket – česká hardrocková pětice z Týnce nad Sázavou, založená v roce 2024. Příběh, jak vznikla a kam směřuje." />
                 <meta property="og:title" content="Suniket | O kapele" />
                 <meta property="og:description" content="Historie a příběh české hardrockové kapely Suniket z Týnce nad Sázavou." />
+                <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://suniket.cz/o-nas" />
+                <meta property="og:image" content="https://suniket.cz/img/og-image.jpg" />
+                <meta property="og:locale" content="cs_CZ" />
+                <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="Suniket | O kapele" />
                 <meta name="twitter:description" content="Historie a příběh české hardrockové kapely Suniket z Týnce nad Sázavou." />
+                <meta name="twitter:image" content="https://suniket.cz/img/og-image.jpg" />
                 <link rel="canonical" href="https://suniket.cz/o-nas" />
             </Helmet>
+            <BreadcrumbJsonLd items={[{ name: "Domů", path: "/" }, { name: "O nás", path: "/o-nas" }]} />
             <section className="relative py-16 max-w-[1152px] mx-auto px-5">
                 <h2 className="text-4xl font-bold text-center text-red-sun mb-16 relative z-10">Historie kapely</h2>
 
@@ -56,6 +65,8 @@ function About() {
                                         <img
                                             src={assetUrl(item.img)}
                                             alt={item.alt}
+                                            loading="lazy"
+                                            decoding="async"
                                             className="w-full h-full object-cover rounded-lg"
                                         />
                                     </div>

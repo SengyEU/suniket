@@ -3,17 +3,24 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState, useEffect } from "react";
 import { Helmet } from "react-helmet-async";
 import { fetchConcerts } from "../api";
+import Spinner from "../components/Spinner.jsx";
+import BreadcrumbJsonLd from "../components/BreadcrumbJsonLd.jsx";
+import EventSchema from "../components/EventSchema.jsx";
 
 function Tour() {
     const [upcoming, setUpcoming] = useState([]);
     const [past, setPast] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        fetchConcerts().then((data) => { setUpcoming(data.upcoming); setPast(data.past); setLoading(false); });
+        fetchConcerts()
+            .then((data) => { setUpcoming(data.upcoming); setPast(data.past); setLoading(false); })
+            .catch((e) => { setError(e.message); setLoading(false); });
     }, []);
 
-    if (loading) return null;
+    if (loading) return <Spinner />;
+    if (error) return <section className="py-16 max-w-screen-xl mx-auto px-4"><p className="text-red-sun text-lg text-center">Chyba načítání: {error}</p></section>;
 
     const entryContent = (concert) => {
         if (!concert.entry) return <span>Vstup zdarma</span>;
@@ -103,14 +110,21 @@ function Tour() {
         <>
             <Helmet>
                 <title>Suniket | Koncerty</title>
-                <meta name="description" content="Nadcházející a proběhlé koncerty kapely Suniket. Přijďte si poslechnout český hard rock naživo!" />
+                <meta name="description" content="Koncerty kapely Suniket – nadcházející a proběhlé akce. Český hard rock naživo. Vstupenky, místa a časy." />
                 <meta property="og:title" content="Suniket | Koncerty" />
                 <meta property="og:description" content="Nadcházející a proběhlé koncerty kapely Suniket. Přijďte si poslechnout český hard rock naživo!" />
+                <meta property="og:type" content="website" />
                 <meta property="og:url" content="https://suniket.cz/tour" />
+                <meta property="og:image" content="https://suniket.cz/img/og-image.jpg" />
+                <meta property="og:locale" content="cs_CZ" />
+                <meta name="twitter:card" content="summary_large_image" />
                 <meta name="twitter:title" content="Suniket | Koncerty" />
                 <meta name="twitter:description" content="Nadcházející a proběhlé koncerty kapely Suniket. Přijďte si poslechnout český hard rock naživo!" />
+                <meta name="twitter:image" content="https://suniket.cz/img/og-image.jpg" />
                 <link rel="canonical" href="https://suniket.cz/tour" />
             </Helmet>
+            <BreadcrumbJsonLd items={[{ name: "Domů", path: "/" }, { name: "Tour", path: "/tour" }]} />
+            <EventSchema concerts={upcoming} />
             <section className="max-w-6xl mx-auto px-5 py-16 text-center">
             <ConcertGroup title="Nadcházející koncerty" concerts={upcoming} showEntry />
             <hr className="h-0.5 bg-white/20 border-none my-14 mx-auto max-w-2xl rounded" />

@@ -1,8 +1,37 @@
 User-agent: *
 Allow: /
-
 Disallow: /admin/
 Disallow: /temp/
 Disallow: /private/
+
+# Allow AI search crawlers (for visibility in AI search results)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# Block AI training crawlers (only training, not search)
+User-agent: Google-Extended
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+# Allow all other crawlers including Googlebot and Bingbot
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
 
 Sitemap: https://suniket.cz/sitemap.xml
