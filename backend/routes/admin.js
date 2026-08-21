@@ -5,7 +5,7 @@ import path from "path";
 import fs from "fs";
 import { fileURLToPath } from "url";
 import crypto from "crypto";
-import db from "../db.js";
+import db, { safeDir } from "../db.js";
 import auth from "../middleware/auth.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -65,22 +65,6 @@ router.post("/upload", auth, upload.single("file"), async (req, res) => {
   }
 });
 
-router.post("/photos/upload-multiple", auth, upload.array("files", 50), async (req, res) => {
-  try {
-    if (!req.files || !req.files.length) return res.status(400).json({ error: "No files uploaded" });
-    const results = [];
-    for (const file of req.files) {
-      const { src, thumb } = await saveImage(file.buffer, uploadDir);
-      const row = db.one("SELECT COALESCE(MAX(sort_order), 0) + 1 as next FROM photos");
-      const info = db.run("INSERT INTO photos (src, thumb, alt, sort_order) VALUES (?, ?, ?, ?)", [src, thumb, "", row.next]);
-      results.push({ id: info.lastInsertRowid, src, thumb });
-    }
-    res.json({ success: true, count: results.length, photos: results });
-  } catch (e) {
-    res.status(500).json({ error: e.message });
-  }
-});
-
 router.get("/sort-dir", auth, (req, res) => {
   const rows = db.all("SELECT * FROM settings WHERE key LIKE 'sort_dir_%'");
   const dirs = {};
@@ -95,7 +79,7 @@ router.post("/sort-dir", auth, (req, res) => {
   res.json({ success: true });
 });
 
-function crud(table, fields) {
+function crud(table, fields, { onDelete } = {}) {
   const r = Router();
   r.use(auth);
 
@@ -107,7 +91,7 @@ function crud(table, fields) {
       sql += " WHERE " + q.map(([k]) => `${k} = ?`).join(" AND ");
       q.forEach(([, v]) => params.push(v));
     }
-    const dir = req.query.sort === "desc" ? "DESC" : "ASC";
+    const dir = safeDir(req.query.sort || "asc");
     sql += ` ORDER BY sort_order ${dir}`;
     const rows = db.all(sql, params);
     res.json(rows);
@@ -143,8 +127,9 @@ function crud(table, fields) {
     res.json(row);
   });
 
-  r.delete("/:id", (_req, res) => {
-    db.run(`DELETE FROM ${table} WHERE id = ?`, [_req.params.id]);
+  r.delete("/:id", (req, res) => {
+    if (onDelete) onDelete(req.params.id);
+    db.run(`DELETE FROM ${table} WHERE id = ?`, [req.params.id]);
     res.json({ success: true });
   });
 
@@ -187,7 +172,17 @@ router.use("/albums", crud("albums", albumFields));
 router.use("/songs", crud("songs", songFields));
 router.use("/lyrics", crud("lyrics", lyricFields));
 router.use("/news", crud("news", newsFields));
-router.use("/photos", crud("photos", photoFields));
+router.use("/photos", crud("photos", photoFields, {
+  onDelete: (id) => {
+    const row = db.one("SELECT src FROM photos WHERE id = ?", [id]);
+    if (row?.src) {
+      const basename = path.basename(row.src);
+      for (const name of [basename, "thumb_" + basename]) {
+        try { fs.unlinkSync(path.join(uploadDir, name)); } catch (_) {}
+      }
+    }
+  }
+}));
 router.use("/videos", crud("videos", videoFields));
 router.use("/members", crud("members", memberFields));
 

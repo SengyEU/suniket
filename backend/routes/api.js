@@ -1,11 +1,12 @@
 import { Router } from "express";
-import db from "../db.js";
+import db, { safeDir } from "../db.js";
 
 const router = Router();
 
 function sortDir(req, table) {
-  if (req.query.sort === "asc" || req.query.sort === "desc") return req.query.sort.toUpperCase();
-  return db.getSortDir(table);
+  const q = req.query.sort;
+  if (q === "asc" || q === "desc") return safeDir(q);
+  return safeDir(db.getSortDir(table));
 }
 
 router.get("/timeline", (req, res) => {
@@ -97,6 +98,44 @@ function youtubeId(val) {
 router.get("/videos", (req, res) => {
   const rows = db.all(`SELECT * FROM videos ORDER BY sort_order ${sortDir(req, "videos")}`);
   res.json(rows.map((r) => youtubeId(r.youtube_id)));
+});
+
+const latestVideoCache = { data: null, expiry: 0 };
+
+const CHANNEL_ID = "UCyVe08FDN_amn5ixl78b0mA";
+
+router.get("/latest-video", async (_req, res) => {
+  try {
+    if (latestVideoCache.data && Date.now() < latestVideoCache.expiry) {
+      return res.json(latestVideoCache.data);
+    }
+
+    const resp = await fetch(
+      `https://www.youtube.com/feeds/videos.xml?channel_id=${CHANNEL_ID}`,
+      { headers: { "User-Agent": "Mozilla/5.0 (compatible; SuniketBot/1.0)" } },
+    );
+    if (!resp.ok) {
+      return res.status(502).json({ error: `RSS fetch failed: ${resp.status}` });
+    }
+    const xml = await resp.text();
+
+    // find <entry> blocks and check their <link rel="alternate"> for /shorts/
+    const entries = [...xml.matchAll(/<entry>([\s\S]*?)<\/entry>/g)];
+    for (const [, body] of entries) {
+      const idMatch = body.match(/<yt:videoId>([a-zA-Z0-9_-]{11})<\/yt:videoId>/);
+      const linkMatch = body.match(/<link rel="alternate"[^>]*href="([^"]+)"/);
+      if (!idMatch || !linkMatch) continue;
+      if (linkMatch[1].includes("/shorts/")) continue;
+      latestVideoCache.data = { videoId: idMatch[1] };
+      latestVideoCache.expiry = Date.now() + 600_000;
+      return res.json(latestVideoCache.data);
+    }
+
+    return res.status(404).json({ error: "No non-Shorts video found", entries: entries.length });
+  } catch (err) {
+    console.error("latest-video error:", err);
+    return res.status(500).json({ error: "Failed to fetch latest video", detail: err.message });
+  }
 });
 
 router.get("/members", (req, res) => {

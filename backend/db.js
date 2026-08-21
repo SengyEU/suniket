@@ -112,4 +112,9 @@ function getSortDir(table) {
   return row?.value === "desc" ? "DESC" : "ASC";
 }
 
+export function safeDir(dir) {
+  const d = String(dir).toUpperCase();
+  return d === "DESC" ? "DESC" : "ASC";
+}
+
 export default { all, one, run, exec, getSortDir };
